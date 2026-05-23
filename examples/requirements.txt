@@ -1,0 +1,5 @@
+# Core demo needs only numpy + the local reference (../reference/bposit_ref.py).
+numpy>=1.24
+# Optional: to run against a REAL HuggingFace model (else the demo uses synthetic weights).
+transformers>=4.40
+torch>=2.0

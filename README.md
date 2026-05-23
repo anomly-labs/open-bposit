@@ -32,18 +32,22 @@ new here is **reproducibility**:
 
 ## Applying it to a HuggingFace model
 
-The recipe is the standard W8A8 path, with b-posit as the number format: quantize
-each weight (and, for W8A8, activations) to 8-bit b-posit, run the matmuls with
-exact quire accumulation, round once. You get ~30–50% memory reduction at
-AWQ-class accuracy — plus the reproducibility guarantee above. The 4/5-bit rungs
-trade accuracy for more compression.
+The recipe is the standard W8A8 path with b-posit as the number format: quantize
+each weight (and, for W8A8, activations) to b-posit, run the matmuls with exact
+quire accumulation, round once. `examples/hf_bposit_demo.py` does this on a real
+HuggingFace model and reports memory, accuracy, and reproducibility.
 
-> **Status / honesty:** this repo is the **format standard + reference +
-> conformance + hardware (RTL)**. It is *not yet* a turnkey one-line HuggingFace
-> runtime — the inference integration (a quantize-and-run path) is on the
-> roadmap. Low-bit accuracy is also format-limited: **8-bit is the deployable
-> sweet spot** (AWQ-class); 4-bit is aggressive and needs calibration. We report
-> this straight rather than overclaim.
+> **Status / honesty (read this).** What b-posit gives is **reproducibility +
+> memory + FPU-free hardware** — *not* best-in-class low-bit accuracy. Measured
+> on a real Qwen-0.5B layer (`examples/hf_bposit_demo.py`): **8-bit b-posit ≈ 9%
+> relative error**, and per-channel/per-token scaling barely helps (posits are
+> tapered, not integer — unlike INT8, where scaling is decisive and gets ~1–3%).
+> So if you need near-lossless low-bit accuracy, INT8/AWQ wins. **b-posit's
+> niche is when you need results that are bit-identical across hardware** (audit,
+> regulated/forensic, multi-vendor, pre-silicon validation) — which INT8/AWQ
+> cannot give. For accuracy-sensitive work, **16-bit b-posit is bf16-class AND
+> reproducible**. This repo is the format standard + reference + conformance +
+> hardware (RTL); a turnkey HF runtime is roadmap.
 
 ## What's in here
 
