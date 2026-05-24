@@ -59,6 +59,7 @@ where it matters. All rungs share the same exact quire, so a mixed-precision sum
 still bit-reproducible. The "75/69% smaller" memory wins are real; the accuracy
 cost shown here is the honest other half.
 
-Reproduce: `reference/bposit_quantize.py` (`quantize_w8a8`), or
-`examples/hf_bposit_demo.py` for the single-model walkthrough. Rung sweep:
-the `characterize_rungs` harness in the OpenEvolve workspace.
+Reproduce: `python examples/rung_sweep.py` (prints this bp4/aip5/bp8 table from
+scratch — real HF layer if available, else synthetic), `reference/bposit_quantize.py`
+(`quantize_w8a8`) for the recipe, or `examples/hf_bposit_demo.py` for the
+single-model W8A8 walkthrough.
