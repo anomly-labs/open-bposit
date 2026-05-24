@@ -59,6 +59,27 @@ where it matters. All rungs share the same exact quire, so a mixed-precision sum
 still bit-reproducible. The "75/69% smaller" memory wins are real; the accuracy
 cost shown here is the honest other half.
 
+## Mixed precision in one exact quire (still reproducible)
+
+You can quantize different weight channels to different rungs and accumulate the
+mixed-rung dot product in the **same** 256-bit quire — the result stays
+bit-identical across hardware, which uniform float/INT8 cannot do. Policy: bp8 for
+the highest-output-energy channels, aip5 for the rest; activations kept at bp8.
+On L0 mlp gate_proj (`examples/mixed_precision_demo.py`):
+
+| policy | avg bits/weight | relerr | reproducible |
+|---|---|---|---|
+| uniform aip5 (W) | 5.00 | 0.220 | ✓ |
+| **mixed (25% bp8 / 75% aip5)** | **5.75** | **0.172** | ✓ |
+| uniform bp8 (W) | 8.00 | 0.088 | ✓ |
+
+Honest read: mixed precision **interpolates** between the rungs — at 5.75 bits
+(28% smaller weights than bp8) it beats uniform aip5 for +0.75 bits, but it's no
+free lunch; bp8 is still much more accurate. The point of the demo is the
+**property**: mixing rungs in one exact quire does not break reproducibility — the
+basis for a dynamic-precision scheme that picks bit-width per channel/task and
+still produces auditable, hardware-independent bits.
+
 Reproduce: `python examples/rung_sweep.py` (prints this bp4/aip5/bp8 table from
 scratch — real HF layer if available, else synthetic), `reference/bposit_quantize.py`
 (`quantize_w8a8`) for the recipe, or `examples/hf_bposit_demo.py` for the
