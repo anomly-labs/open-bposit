@@ -11,7 +11,7 @@
 # The liberty path is injected by run_synth.sh as the LIB env -> -DLIB. If you
 # run yosys directly, pass:  yosys -DLIB=<path-to>.lib synth_check.ys
 
-read_verilog -sv bposit8_qmac.sv bposit_encode.sv bposit8_dot.sv
+read_verilog -sv ../bposit8_qmac.sv ../bposit_encode.sv ../bposit8_dot.sv
 hierarchy -check -top bposit8_dot
 synth -top bposit8_dot -flatten
 

@@ -1,10 +1,6 @@
 {
   "DESIGN_NAME": "bposit8_dot",
-  "VERILOG_FILES": [
-    "dir::../bposit8_qmac.sv",
-    "dir::../bposit_encode.sv",
-    "dir::../bposit8_dot.sv"
-  ],
+  "VERILOG_FILES": "dir::src/*.sv",
   "CLOCK_PORT": "clk_i",
   "CLOCK_PERIOD": 10,
   "RUN_LINTER": true,

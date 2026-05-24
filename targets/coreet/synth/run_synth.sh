@@ -11,11 +11,14 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 # Common locations across the VSD labs / OpenLane volumes.
+_HD="libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
 CANDIDATES=(
   "${LIB:-}"
-  "${PDK_ROOT:-}/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
-  "/usr/local/share/pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
-  "$HOME/.volare/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
+  "${PDK_ROOT:-}/sky130A/$_HD"
+  "/home/vscode/.ciel/sky130A/$_HD"     # vsd-openlane Codespace (ciel)
+  "$HOME/.ciel/sky130A/$_HD"
+  "$HOME/.volare/sky130A/$_HD"          # older volare layout
+  "/usr/local/share/pdk/sky130A/$_HD"
 )
 LIB=""
 for c in "${CANDIDATES[@]}"; do
