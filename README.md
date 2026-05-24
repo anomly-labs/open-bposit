@@ -17,8 +17,9 @@ new here is **reproducibility**:
 
 - **Less memory.** Weights at **8-bit b-posit** are ~50% smaller than fp16/bf16;
   end-to-end you typically land in the **30–50%** range depending on what you
-  quantize. The 4- and 5-bit rungs go further when you can tolerate/calibrate
-  the accuracy.
+  quantize. The 4- and 5-bit rungs save more (75/69%) but are coarse — 32–51%
+  layer relerr (`examples/accuracy_table.md`), so they're for mixed/dynamic-
+  precision use, not blanket weight quantization.
 - **Bit-for-bit reproducible — the differentiator.** Every result is *identical*
   across an NVIDIA GPU, x86, and RISC-V. Ordinary float quantization isn't: IEEE
   rounding + non-associative tensor-core reductions make the low bits drift

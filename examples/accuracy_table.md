@@ -38,5 +38,27 @@ quire and is bit-reproducible across hardware.
   oracle, on layers the recipe did not train on. The recipe trained only on L0
   gate_proj; the other six are held-out.
 
+## Lower rungs (bp4, aip5) — measured, and the error is high
+
+Same 7 layers, same recipe, same forensic gates, but quantizing **both** operands
+to the 4-bit (`bp4`) and 5-bit (`aip5`) rungs. Mean relerr of the scaled result:
+
+| rung | bits | vs fp16 | mean relerr (scaled) |
+|---|---|---|---|
+| bp8  | 8 | 50% smaller | **0.090** |
+| aip5 | 5 | 69% smaller | **0.325** |
+| bp4  | 4 | 75% smaller | **0.512** |
+
+Read this plainly: **bp4/aip5 are not drop-in low-bit weight formats.** At 32–51%
+relative error, uniformly quantizing a layer to 4 or 5 bits is far too lossy for
+general inference — the per-channel power-of-two scale helps a lot (bp4 naive runs
+0.7–3.0 before scaling) but can't overcome having only 16/32 representable values.
+Their purpose is the **dynamic/mixed-precision** scheme: spend 4/5 bits only on
+error-tolerant tensors (or let a scheduler pick precision per task), keep bp8/bp16
+where it matters. All rungs share the same exact quire, so a mixed-precision sum is
+still bit-reproducible. The "75/69% smaller" memory wins are real; the accuracy
+cost shown here is the honest other half.
+
 Reproduce: `reference/bposit_quantize.py` (`quantize_w8a8`), or
-`examples/hf_bposit_demo.py` for the single-model walkthrough.
+`examples/hf_bposit_demo.py` for the single-model walkthrough. Rung sweep:
+the `characterize_rungs` harness in the OpenEvolve workspace.
