@@ -6,3 +6,8 @@ dims.svh
 *.vvp
 __pycache__/
 .DS_Store
+
+# synthesis run artifacts
+targets/coreet/synth/synth.log
+targets/coreet/synth/synth_stat.txt
+targets/coreet/synth/runs/

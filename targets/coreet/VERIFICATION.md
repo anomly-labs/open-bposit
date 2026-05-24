@@ -34,9 +34,13 @@ differential verification against a *trusted oracle*, **exhaustive where feasibl
 These are **not yet in RTL** and must NOT be assumed working:
 
 3. **LUT nonlinearities** (silu/exp/recip/sqrt) — not in RTL (map to `trans_*_rom`).
-4. **No gate-level / synthesis / timing** — this is RTL behavioural sim only. No
-   STA, no gate sim, no power. (The "half-working tapeout" failure mode lives
-   here — flagged explicitly as the next gate.)
+4. **No gate-level / synthesis / timing numbers yet** — this is RTL behavioural
+   sim only. The synthesis flow now exists (`synth/`: pure-yosys area/gate
+   estimate + an OpenLane config for full P&R + STA on sky130, runnable free in
+   the VSD cloud labs), but the **numbers have not been captured** — until that
+   run lands, treat area/Fmax/power as unknown. sky130 ≠ CORE-ET process, so even
+   then they're an illustrative ballpark, not a CORE-ET spec. (The "half-working
+   tapeout" failure mode lives here — flagged explicitly as the next gate.)
 5. **Not integrated into CORE-ET** — standalone modules; not yet wired into
    `vpu_tensorbposit` / the minion pipeline (Phase 1).
 6. **Quire-width bound:** 256-bit Q96 holds aip5 products (≤2^108 each) for any

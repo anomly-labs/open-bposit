@@ -1,0 +1,18 @@
+{
+  "DESIGN_NAME": "bposit8_dot",
+  "VERILOG_FILES": [
+    "dir::../bposit8_qmac.sv",
+    "dir::../bposit_encode.sv",
+    "dir::../bposit8_dot.sv"
+  ],
+  "CLOCK_PORT": "clk_i",
+  "CLOCK_PERIOD": 10,
+  "RUN_LINTER": true,
+  "SYNTH_AUTONAME": true,
+  "FP_SIZING": "relative",
+  "FP_CORE_UTIL": 35,
+  "PL_TARGET_DENSITY": 0.45,
+  "DESIGN_IS_CORE": true,
+  "RUN_KLAYOUT": false,
+  "//": "vsd-openlane (classic OpenLane, sky130hd). CLOCK_PERIOD 10ns = 100 MHz is a conservative first cut; lower it until STA reports a violation to find Fmax. If yosys rejects SystemVerilog, enable the slang/surelog plugin (see README) or use the pure-yosys synth_check.ys for the area/gate estimate."
+}

@@ -39,21 +39,28 @@ HuggingFace model and reports memory, accuracy, and reproducibility.
 
 > **Status / honesty (read this).** What b-posit gives is **reproducibility +
 > memory + FPU-free hardware** — *not* best-in-class low-bit accuracy. Measured
-> on a real Qwen-0.5B layer (`examples/hf_bposit_demo.py`): **8-bit b-posit ≈ 9%
-> relative error**, and per-channel/per-token scaling barely helps (posits are
-> tapered, not integer — unlike INT8, where scaling is decisive and gets ~1–3%).
-> So if you need near-lossless low-bit accuracy, INT8/AWQ wins. **b-posit's
-> niche is when you need results that are bit-identical across hardware** (audit,
-> regulated/forensic, multi-vendor, pre-silicon validation) — which INT8/AWQ
-> cannot give. For accuracy-sensitive work, **16-bit b-posit is bf16-class AND
-> reproducible**. This repo is the format standard + reference + conformance +
-> hardware (RTL); a turnkey HF runtime is roadmap.
+> across 7 real Qwen-0.5B layers (`examples/accuracy_table.md`): naive **8-bit
+> b-posit ≈ 12.5% relative error**, which a **reproducibility-safe per-channel
+> power-of-two scale** (`reference/bposit_quantize.py`) brings to **≈ 9%** — and
+> an OpenEvolve search couldn't beat ~9%, so that's the intrinsic 8-bit floor.
+> Note: per-channel *max* scaling (the INT8 trick) barely helps posits — they're
+> tapered, not uniform; the win is **RMS-centering** each channel into the dense
+> high-precision band, via an exact power-of-two shift that keeps the result
+> bit-reproducible. So if you need near-lossless low-bit accuracy, INT8/AWQ wins.
+> **b-posit's niche is when you need results that are bit-identical across
+> hardware** (audit, regulated/forensic, multi-vendor, pre-silicon validation) —
+> which INT8/AWQ cannot give. For accuracy-sensitive work, **16-bit b-posit is
+> bf16-class AND reproducible**. This repo is the format standard + reference +
+> conformance + hardware (RTL); a turnkey HF runtime is roadmap.
 
 ## What's in here
 
 ```
 reference/        format reference oracle (decode/encode/quire/mul/add) + conformance generators
+                  + bposit_quantize.py (reproducibility-safe W8A8 recipe)
 targets/coreet/   CORE-ET (AiNEKKO ET-Minion) SystemVerilog block + testbenches + VERIFICATION.md
+targets/coreet/synth/   sky130 synthesis flow (yosys area + OpenLane P&R/STA) for the cloud labs
+examples/         HuggingFace W8A8 demo + measured accuracy table
 hdl/              (planned) SpinalHDL source that generates the SystemVerilog
 ```
 

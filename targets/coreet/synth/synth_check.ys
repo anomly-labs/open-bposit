@@ -1,0 +1,25 @@
+# synth_check.ys — sky130 synthesis + area/gate-count estimate for bposit8_dot.
+#
+# Pure-yosys flow: works in the VSD "vsd-rtl" lab (yosys + sky130 liberty) and in
+# the "vsd-openlane" Codespace alike. It maps the W8A8 GEMM cell to sky130 std
+# cells and prints the gate/area report. No place-and-route, no full STA — that's
+# what the OpenLane config.json next to this file is for. See README.md.
+#
+# Run via:  ./run_synth.sh            (locates the sky130 HD liberty for you)
+# or:       yosys -p "read_verilog -sv ..." ...   (run_synth.sh does this)
+#
+# The liberty path is injected by run_synth.sh as the LIB env -> -DLIB. If you
+# run yosys directly, pass:  yosys -DLIB=<path-to>.lib synth_check.ys
+
+read_verilog -sv bposit8_qmac.sv bposit_encode.sv bposit8_dot.sv
+hierarchy -check -top bposit8_dot
+synth -top bposit8_dot -flatten
+
+# map sequential + combinational to the sky130 high-density library
+dfflibmap -liberty $LIB
+abc -liberty $LIB -D 10000   ;# target ~10 ns (100 MHz) as a first cut
+
+clean
+# area + cell-count report, and the critical-path estimate from abc above
+stat -liberty $LIB
+tee -o synth_stat.txt stat -liberty $LIB
