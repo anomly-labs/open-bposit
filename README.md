@@ -81,6 +81,15 @@ pass here means the hardware agrees with all of them.
 See `targets/coreet/VERIFICATION.md` for the full coverage matrix and the honest
 gap list (no synthesis/STA yet; not yet wired into the core pipeline).
 
+## Want this in your chip?
+
+The format and reference here are open. If you need b-posit **in silicon** — a
+W8A8 MAC + quire datapath dropped into your RISC-V core or accelerator, integrated
+and **RE-grade verified** (exhaustive differential conformance, cosim, cross-arch
+reproducibility) — that's what Anomly does as a design service: IP-block design,
+core integration (`Zbposit` custom instruction), verification-as-a-service, and
+open-PDK (Sky130) signoff. Reach out: **ry@anomly.com**.
+
 ## License
 
 Apache-2.0. Copyright (c) 2026 Anomly, Inc.
