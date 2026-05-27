@@ -49,6 +49,29 @@ to the 4-bit (`bp4`) and 5-bit (`aip5`) rungs. Mean relerr of the scaled result:
 | aip5 | 5 | 69% smaller | **0.325** |
 | bp4  | 4 | 75% smaller | **0.512** |
 
+Per-layer detail (same 7 layers, **naive** = direct quantize, **scaled** = the
+power-of-two recipe). This is the breakdown behind the means above:
+
+| layer | aip5 naive | aip5 scaled | bp4 naive | bp4 scaled |
+|---|---|---|---|---|
+| L0 attn q_proj   | 0.4536 | 0.3604 | 0.7195 | 0.5323 |
+| L0 attn v_proj   | 0.7188 | 0.3241 | 3.0210 | 0.5168 |
+| L0 mlp down_proj | 0.6037 | 0.3210 | 1.7900 | 0.5068 |
+| L0 mlp gate_proj | 0.5900 | 0.3166 | 1.2886 | 0.5101 |
+| L0 mlp up_proj   | 0.6093 | 0.3169 | 1.6484 | 0.5017 |
+| L12 attn o_proj  | 0.6547 | 0.3205 | 1.8830 | 0.5108 |
+| L12 mlp gate_proj| 0.5948 | 0.3120 | 1.5353 | 0.5049 |
+| **mean** | **0.6036** | **0.3245** | **1.6979** | **0.5119** |
+
+Two things jump out. **(1)** Scaling matters far more at the low rungs than at bp8:
+bp4 naive ranges 0.72–3.02 (one outlier channel-set blows up to 3×) but the
+power-of-two RMS-centering pulls *every* layer into a tight 0.50–0.53 band — it's
+salvaging codes that naive quantization throws into saturation. **(2)** Even fully
+scaled, the floor is set by representable-value count, not by tuning: ~0.51 (bp4,
+16 values) and ~0.32 (aip5, 32 values) are as good as a uniform per-layer cast
+gets. That gap between the rungs is exactly why the mixed/dynamic-precision scheme
+exists — you don't pay the bp4 floor on a tensor that can't tolerate it.
+
 Read this plainly: **bp4/aip5 are not drop-in low-bit weight formats.** At 32–51%
 relative error, uniformly quantizing a layer to 4 or 5 bits is far too lossy for
 general inference — the per-channel power-of-two scale helps a lot (bp4 naive runs
