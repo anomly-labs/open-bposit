@@ -78,13 +78,45 @@ def dot(a_codes, b_codes, fmt: str, out_fmt: str = "bp32") -> int:
 
 
 def matmul_quire(A_codes, B_codes, fmt: str):
-    """Exact quire per output of A[T,K] @ B[N,K]^T (object array of Python ints)."""
-    A = np.asarray(A_codes, dtype=np.int64)
-    B = np.asarray(B_codes, dtype=np.int64)
-    out = np.empty((A.shape[0], B.shape[0]), dtype=object)
-    for i in range(A.shape[0]):
-        for j in range(B.shape[0]):
-            out[i, j] = dot_quire(A[i], B[j], fmt)
+    """Exact 256-bit quire per output of A[T,K] @ B[N,K]^T, as an [T,N] object
+    array of Python ints. Batched over the B rows: for one A row it forms the
+    product-mantissa and bit-shift matrices against ALL N B rows at once, then
+    accumulates each distinct shift group with a single vectorized masked sum —
+    avoiding the per-dot argsort/unique that a T*N loop over dot_quire pays.
+    Bit-identical to dot_quire per output (and to bposit_ref.dot_at_precision)."""
+    mant, exp = _lut(fmt)
+    mask = (1 << _NBITS[fmt]) - 1
+    A = np.asarray(A_codes, dtype=np.int64) & mask
+    B = np.asarray(B_codes, dtype=np.int64) & mask
+    if A.ndim != 2 or B.ndim != 2:
+        raise ValueError("matmul_quire expects A[T,K] and B[N,K]")
+    T, N = A.shape[0], B.shape[0]
+    Bm, Be = mant[B], exp[B]                        # [N,K]
+    out = np.empty((T, N), dtype=object)
+    for i in range(T):
+        Pm = mant[A[i]][None, :] * Bm              # [N,K] signed products
+        S = exp[A[i]][None, :] + Be + QUIRE_FRAC_BITS
+        row = [0] * N
+        pos = S >= 0
+        Pmp = np.where(pos, Pm, 0)
+        Sp = np.where(pos, S, 0)
+        if pos.any():
+            for s in np.unique(Sp[pos]).tolist():
+                Ts = np.where(Sp == s, Pmp, 0).sum(axis=1)   # [N] int64
+                for n in np.nonzero(Ts)[0]:
+                    row[n] += int(Ts[n]) << s
+        # shift<0 terms: truncate toward zero per term (matches the reference int())
+        neg = ~pos
+        if neg.any():
+            Pmn = np.where(neg, Pm, 0)
+            Shn = np.where(neg, -S, 0)
+            for n in range(N):
+                nz = Pmn[n] != 0
+                if nz.any():
+                    for p, sh in zip(Pmn[n][nz].tolist(), Shn[n][nz].tolist()):
+                        row[n] += -((-p) >> sh) if p < 0 else (p >> sh)
+        for n in range(N):
+            out[i, n] = row[n]
     return out
 
 
@@ -120,4 +152,28 @@ if __name__ == "__main__":
         _bp.dot_at_precision(A[i].tolist(), B.tolist(), "bp8", "bp32")
     tr = time.time() - t0
     print(f"  speed ({N} dots K={K}): fast {tv*1e3:.0f} ms vs reference {tr*1e3:.0f} ms -> {tr/tv:.0f}x")
+
+    # matmul: bit-exact vs the per-dot quire, and its speed
+    for fmt in ("bp4", "aip5", "bp8"):
+        n = 1 << _NBITS[fmt]
+        Tm, Nm, Km = 3, 5, 200
+        Am = rng.integers(0, n, size=(Tm, Km), dtype=np.int64)
+        Bm = rng.integers(0, n, size=(Nm, Km), dtype=np.int64)
+        M = matmul_quire(Am, Bm, fmt)
+        exact = all(int(M[i, j]) == dot_quire(Am[i], Bm[j], fmt)
+                    for i in range(Tm) for j in range(Nm))
+        ok = ok and exact
+        print(f"  {fmt}: matmul_quire bit-exact vs per-dot {'OK' if exact else 'FAIL'}")
+    Tm, Nm, Km = 32, 256, 512
+    Am = rng.integers(0, 256, size=(Tm, Km), dtype=np.int64)
+    Bm = rng.integers(0, 256, size=(Nm, Km), dtype=np.int64)
+    t0 = time.time()
+    _ref_mm = np.empty((Tm, Nm), dtype=object)
+    for i in range(Tm):
+        for j in range(Nm):
+            _ref_mm[i, j] = dot_quire(Am[i], Bm[j], "bp8")
+    tpd = time.time() - t0
+    t0 = time.time(); matmul_quire(Am, Bm, "bp8"); tmm = time.time() - t0
+    print(f"  matmul {Tm}x{Nm}x{Km} bp8: per-dot {tpd*1e3:.0f} ms vs batched {tmm*1e3:.0f} ms"
+          f" -> {tpd/tmm:.2f}x")
     print("bposit_fast:", "ALL BIT-EXACT" if ok else "FAILED")
