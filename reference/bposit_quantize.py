@@ -22,6 +22,16 @@ accuracy (use the 16-bit rung for accuracy-grade + reproducible).
 Every numeric op routes through the proven reference oracle (`bposit_ref`), so
 the matmul accumulates in the exact 256-bit quire and is bit-identical on any
 GPU / CPU / RISC-V.
+
+Reproducibility scope (precise). The guarantee is: *given the quantized integer
+codes*, the W8A8 matmul + power-of-two rescale is bit-identical on any hardware
+(the quire accumulation is exact and the rescale is an exact exponent shift). The
+`recommended_exponents` heuristic that PRODUCES the codes uses float64 `log2` /
+`percentile` / `round`, which are not themselves guaranteed identical across numpy
+versions/platforms at a rounding boundary — so quantization is a one-time step
+that fixes the codes, and it is those codes (the shipped model) whose inference is
+reproducible. This is the property the moat needs (reproducible serving), and the
+one the exact quire actually provides; the tapered-scale search is preprocessing.
 """
 from __future__ import annotations
 
