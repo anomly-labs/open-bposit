@@ -81,6 +81,61 @@ pass here means the hardware agrees with all of them.
 See `targets/coreet/VERIFICATION.md` for the full coverage matrix and the honest
 gap list (no synthesis/STA yet; not yet wired into the core pipeline).
 
+## The cost of exactness: measured, and it's negative
+
+The obvious objection to a 256-bit exact quire is "surely carrying all those
+bits costs you." We measured it, against a **fair, verified baseline**: the same
+b-posit16 MAC datapath built two ways — **exact** (product → 256-bit quire
+accumulate → round *once* at readout) vs **rounded** (product → round-to-
+nearest-even back to b-posit16 *every step*, the way a conventional posit FMA
+accumulates). Both share the identical product front-end and 256-bit adder, so
+the comparison isolates exactly one variable: round-every-step vs round-once.
+The rounded baseline is not a strawman — it was differentially verified
+bit-exact against the Python reference (RTNE encode mode) across 867
+dot-product tests before being measured.
+
+Full place-and-route on an AMD Alveo U200 (`xcu200`, Vivado 2022.2, out-of-
+context, 200 MHz constraint):
+
+| | exact MAC | round-every-step MAC | |
+|---|---|---|---|
+| CLB LUTs (post-route) | **4,179** | **9,673** | exact is **2.3× smaller** |
+| Fmax (post-route) | **341.6 MHz** | **32.6 MHz** | exact is **~10.5× faster** |
+| DSP48 | 1 | 1 | identical product front-end |
+
+A technology-independent check (generic yosys gate counts) confirms the
+*direction* — the exact MAC is ~16–25% *fewer* cells than the correct rounded
+one — **in raw area alone**. Note the much larger post-route gap (2.3×) is
+**timing-driven**, not a raw-area gap: because the rounder sits in the
+loop-carried path (below), meeting timing forces logic replication/upsizing —
+which is also why the rounded MAC's Fmax collapses ~10.5×. So the two views
+agree on the mechanism, not on a single ratio.
+
+The structural reason: a correct posit round is decode → normalize → RNE-encode,
+and in a rounded accumulator that logic sits **inside the loop-carried
+`acc → acc` dependency** — it cannot be pipelined away without stalling every
+dependent MAC. The exact quire's loop-carried path is just a 256-bit integer
+add; all rounding is deferred to one readout per dot product. Rounding is what's
+expensive. The quire is what lets you skip it.
+
+Honest caveats: these are single-MAC out-of-context numbers, not a full array;
+the rounded design shares the exact path's 256-bit adder by construction (a
+narrower rounded design would shave some area, but the decode/normalize/encode
+rounder dominates, and every *correct* posit rounder needs one per step); and
+the registers differ as expected (the exact MAC holds the 256-bit quire:
+294 FF vs 48). The qualitative result — per-step rounding ≫ exact deferral —
+is robust to all three. One caveat runs the *other* way, in exactness's favour:
+the exact MAC's 4,179 LUTs still include a continuous quire→posit readout that a
+real GEMM datapath never uses per-cycle (it consumes the raw 256-bit quire and
+encodes once at the boundary). That readout is a large fraction of the exact MAC
+(~40% in generic cells), so its true in-datapath cost is lower still — and the
+rounded design gets no such reduction, because its rounder *is* the loop, not a
+peripheral readout.
+
+So: bit-exact, order-independent, reproducible accumulation costs *less* logic
+and runs *faster* than doing the rounding "the normal way". Exactness is not a
+tax. It's the cheaper design point.
+
 ## Want this in your chip?
 
 The format and reference here are open. If you need b-posit **in silicon** — a
