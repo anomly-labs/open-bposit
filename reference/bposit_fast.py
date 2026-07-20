@@ -43,6 +43,42 @@ def _lut(fmt: str) -> tuple[np.ndarray, np.ndarray]:
     return _LUT_CACHE[fmt]
 
 
+_GRID_CACHE: dict[str, tuple[np.ndarray, float]] = {}
+
+
+def _grid(fmt: str) -> tuple[np.ndarray, float]:
+    """Sorted array of the format's representable magnitudes (incl 0.0) + minpos."""
+    if fmt not in _GRID_CACHE:
+        n = 1 << _NBITS[fmt]
+        mags = sorted(set(abs(float(_bp.code_value(c, fmt))) for c in range(n)))
+        g = np.array(mags, dtype=np.float64)
+        _GRID_CACHE[fmt] = (g, float(g[1]))
+    return _GRID_CACHE[fmt]
+
+
+def quantize_bp8(x) -> np.ndarray:
+    """Vectorized bposit8 quantize→dequantize: map each element of `x` to the value
+    of its bp8 code, returned as float64. Bit-identical to per-element encode+decode
+    (bposit_ref) for all ``|x| >= minpos`` (5.96e-8 — i.e. all real model data) but
+    ~1000x faster (one searchsorted over the 128 representable magnitudes instead of
+    a Python encode per element). This is what makes exact-quire model evaluation
+    tractable (encoding 135M params element-wise is far too slow).
+
+    bp8 rounds toward zero, so this truncates to the largest representable magnitude
+    <= |x|. (Only bp8 — the W8A8 format — is supported: bp4/aip5 use round-to-nearest,
+    a different decision boundary.) Scope: exact for ``|x| >= minpos``; below minpos,
+    encode's result depends on its internal float→rational rounding (not replicated,
+    never matters for real data) — use bposit_ref.encode_bposit8 there if needed."""
+    g, minpos = _grid("bp8")
+    x = np.asarray(x, dtype=np.float64)
+    a = np.abs(x)
+    idx = np.clip(np.searchsorted(g, a, side="right") - 1, 0, len(g) - 1)
+    out = np.sign(x) * g[idx]
+    tiny = (a > 0) & (a < minpos)          # encode never underflows a nonzero to 0 here
+    out[tiny] = np.sign(x[tiny]) * minpos
+    return out
+
+
 def dot_quire(a_codes, b_codes, fmt: str) -> int:
     """Exact 256-bit quire accumulator for the dot of two code vectors — identical to
     the integer `q` inside bposit_ref.dot_at_precision, computed vectorized."""
@@ -139,6 +175,22 @@ if __name__ == "__main__":
         print(f"  {fmt}: bit-exact vs dot_at_precision {'OK' if ok else 'FAIL'}")
         if not ok:
             break
+
+    # vectorized quantize_bp8(): bit-exact vs per-element encode+decode for |x| >= minpos
+    _g, _minpos = _grid("bp8")
+    xs = np.concatenate([rng.standard_normal(20000) * s for s in (1e-3, 0.05, 0.5, 5.0, 500.0, 1e5)])
+    xs = xs[np.abs(xs) >= _minpos]
+
+    def _ref8(v):
+        d = _bp.decode_bposit8(_bp.encode_bposit8(float(v)))
+        return 0.0 if d.is_special else float(_bp.decoded_to_fraction_8(d))
+    ref = np.array([_ref8(v) for v in xs])
+    got = quantize_bp8(xs)
+    q_ok = bool(np.array_equal(ref, got))
+    ok = ok and q_ok
+    print(f"  bp8: quantize_bp8() bit-exact vs encode+decode over {len(xs)} vals (|x|>=minpos) "
+          f"{'OK' if q_ok else 'FAIL'}")
+
     # speed sanity (bp8)
     K, N = 512, 256
     A = rng.integers(0, 256, size=(N, K), dtype=np.int64)
