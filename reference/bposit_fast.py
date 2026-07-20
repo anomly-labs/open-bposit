@@ -56,23 +56,43 @@ def _grid(fmt: str) -> tuple[np.ndarray, float]:
     return _GRID_CACHE[fmt]
 
 
-def quantize_bp8(x) -> np.ndarray:
-    """Vectorized bposit8 quantize→dequantize: map each element of `x` to the value
-    of its bp8 code, returned as float64. Bit-identical to per-element encode+decode
-    (bposit_ref) for all ``|x| >= minpos`` (5.96e-8 — i.e. all real model data) but
-    ~1000x faster (one searchsorted over the 128 representable magnitudes instead of
-    a Python encode per element). This is what makes exact-quire model evaluation
-    tractable (encoding 135M params element-wise is far too slow).
+_MIDS_CACHE: dict[str, np.ndarray] = {}
 
-    bp8 rounds toward zero, so this truncates to the largest representable magnitude
-    <= |x|. (Only bp8 — the W8A8 format — is supported: bp4/aip5 use round-to-nearest,
-    a different decision boundary.) Scope: exact for ``|x| >= minpos``; below minpos,
-    encode's result depends on its internal float→rational rounding (not replicated,
-    never matters for real data) — use bposit_ref.encode_bposit8 there if needed."""
+
+def _mids(fmt: str) -> np.ndarray:
+    if fmt not in _MIDS_CACHE:
+        g, _ = _grid(fmt)
+        _MIDS_CACHE[fmt] = (g[:-1] + g[1:]) / 2.0
+    return _MIDS_CACHE[fmt]
+
+
+def quantize_bp8(x, *, nearest: bool = False) -> np.ndarray:
+    """Vectorized bposit8 quantize→dequantize: map each element of `x` to the value
+    of its bp8 code, returned as float64, ~1000x faster than a per-element Python
+    encode (one searchsorted over the 128 representable magnitudes). This is what
+    makes exact-quire model evaluation tractable (encoding 135M params element-wise
+    is far too slow).
+
+    ``nearest=False`` (default) reproduces ``bposit_ref.encode_bposit8`` exactly for
+    all ``|x| >= minpos`` (5.96e-8 — all real data): b-posit's encode rounds TOWARD
+    ZERO, so this truncates to the largest representable magnitude <= |x|.
+
+    ``nearest=True`` rounds to the NEAREST representable value — the posit standard,
+    and unbiased. Truncation systematically shrinks every value; that bias compounds
+    through a deep model, so for W8A8 inference round-to-nearest is markedly more
+    accurate (measured ~4x lower perplexity degradation on SmolLM2-135M) at NO
+    reproducibility cost (a fixed lattice is still deterministic on any hardware).
+    Prefer ``nearest=True`` for model quantization; use the default only when you
+    must bit-match the (truncating) encoder.
+
+    bp8 only. Scope: exact for ``|x| >= minpos``; below minpos, use encode_bposit8."""
     g, minpos = _grid("bp8")
     x = np.asarray(x, dtype=np.float64)
     a = np.abs(x)
-    idx = np.clip(np.searchsorted(g, a, side="right") - 1, 0, len(g) - 1)
+    if nearest:
+        idx = np.clip(np.searchsorted(_mids("bp8"), a), 0, len(g) - 1)
+    else:
+        idx = np.clip(np.searchsorted(g, a, side="right") - 1, 0, len(g) - 1)
     out = np.sign(x) * g[idx]
     tiny = (a > 0) & (a < minpos)          # encode never underflows a nonzero to 0 here
     out[tiny] = np.sign(x[tiny]) * minpos
