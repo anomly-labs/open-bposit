@@ -38,21 +38,31 @@ each weight (and, for W8A8, activations) to b-posit, run the matmuls with exact
 quire accumulation, round once. `examples/hf_bposit_demo.py` does this on a real
 HuggingFace model and reports memory, accuracy, and reproducibility.
 
-> **Status / honesty (read this).** What b-posit gives is **reproducibility +
-> memory + FPU-free hardware** — *not* best-in-class low-bit accuracy. Measured
-> across 7 real Qwen-0.5B layers (`examples/accuracy_table.md`): naive **8-bit
-> b-posit ≈ 12.5% relative error**, which a **reproducibility-safe per-channel
-> power-of-two scale** (`reference/bposit_quantize.py`) brings to **≈ 9%** — and
-> an OpenEvolve search couldn't beat ~9%, so that's the intrinsic 8-bit floor.
-> Note: per-channel *max* scaling (the INT8 trick) barely helps posits — they're
-> tapered, not uniform; the win is **RMS-centering** each channel into the dense
-> high-precision band, via an exact power-of-two shift that keeps the result
-> bit-reproducible. So if you need near-lossless low-bit accuracy, INT8/AWQ wins.
-> **b-posit's niche is when you need results that are bit-identical across
-> hardware** (audit, regulated/forensic, multi-vendor, pre-silicon validation) —
-> which INT8/AWQ cannot give. For accuracy-sensitive work, **16-bit b-posit is
-> bf16-class AND reproducible**. This repo is the format standard + reference +
-> conformance + hardware (RTL); a turnkey HF runtime is roadmap.
+> **Status / honesty (read this).** b-posit gives **bit-reproducibility + memory +
+> FPU-free hardware** — and, with the right rounding, **near-lossless 8-bit accuracy
+> too**. The rounding mode is the whole story. b-posit's naive `encode` rounds
+> *toward zero* (biased — it shrinks every value, and the bias compounds through a
+> deep network); rounding to the **nearest** representable posit (the standard,
+> unbiased choice — `bposit_fast.quantize_bp8(x, nearest=True)`) is dramatically
+> better. Full-model WikiText-2 perplexity, b-posit8 W8A8, power-of-two per-group
+> scales, LM head fp:
+>
+> | model | fp32 | W8A8 truncate | W8A8 **round-to-nearest** |
+> |---|---|---|---|
+> | SmolLM2-135M | 11.81 | 13.35 (+13.1%) | **12.17 (+3.1%)** |
+> | Qwen2.5-Coder-0.5B | 19.10 | 22.84 (+19.5%) | **19.24 (+0.68%)** |
+>
+> Round-to-nearest is **near-lossless** and 4–29× better than truncation — and it is
+> still *deterministic*, so the accuracy costs nothing in reproducibility (identical
+> integer codes on any hardware / tiling; see `examples/w8a8_rounding_demo.py`). The
+> older "≈9% relative error, intrinsic 8-bit floor" figure (`examples/accuracy_table.md`)
+> was the *truncating* encoder measured single-layer; the full-model round-to-nearest
+> numbers above supersede it. So b-posit8 W8A8 is **reproducible AND competitively
+> accurate** — the combination INT8/AWQ can't offer (they get accuracy but not the
+> bit-identical-across-hardware property that audit / regulated / forensic /
+> multi-vendor / pre-silicon validation need). **16-bit b-posit is bf16-class AND
+> reproducible.** This repo is the format standard + reference + conformance +
+> hardware (RTL); a turnkey HF runtime is roadmap.
 
 ## What's in here
 
@@ -61,7 +71,7 @@ reference/        format reference oracle (decode/encode/quire/mul/add) + confor
                   + bposit_quantize.py (reproducibility-safe W8A8 recipe)
 targets/coreet/   CORE-ET (AiNEKKO ET-Minion) SystemVerilog block + testbenches + VERIFICATION.md
 targets/coreet/synth/   sky130 synthesis flow (yosys area + OpenLane P&R/STA) for the cloud labs
-examples/         HuggingFace W8A8 demo + measured accuracy table
+examples/         HuggingFace W8A8 demo + w8a8_rounding_demo.py (reproducible & near-lossless) + accuracy table
 hdl/              (planned) SpinalHDL source that generates the SystemVerilog
 ```
 
