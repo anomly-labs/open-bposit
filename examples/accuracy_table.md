@@ -4,30 +4,39 @@ W8A8 matmul `X @ Wᵀ` in 8-bit b-posit vs full precision, on real
 **Qwen2.5-Coder-0.5B** weight matrices (a [128, 512] slice of each), `X` a fixed
 Gaussian stand-in. Relative error = ‖Y_bp − Y_fp‖ / ‖Y_fp‖.
 
-Two columns: **naive** (direct bp8 quantize, no scaling) and **scaled** (the
+Two scaling recipes — **naive** (direct quantize) and **scaled** (the
 reproducibility-safe per-channel power-of-two recipe in
-`reference/bposit_quantize.py`). Every result accumulates in the exact 256-bit
-quire and is bit-reproducible across hardware.
+`reference/bposit_quantize.py`) — and, the decisive axis, two **rounding modes**:
+**truncate-toward-zero** (b-posit's `encode` default) vs **round-to-nearest** (the
+posit standard, `bposit_fast.quantize_bp8(x, nearest=True)`). Every result
+accumulates in the exact 256-bit quire and is bit-reproducible across hardware in
+**both** rounding modes.
 
-| layer | naive bp8 | scaled bp8 | improvement |
+| layer | naive bp8 (trunc) | scaled bp8 **truncate** | scaled bp8 **round-to-nearest** |
 |---|---|---|---|
-| L0 attn q_proj  | 0.0953 | 0.0899 |  5.6% |
-| L0 attn v_proj  | 0.1335 | 0.0911 | 31.8% |
-| L0 mlp down_proj| 0.1305 | 0.0884 | 32.2% |
-| L0 mlp gate_proj| 0.1255 | 0.0882 | 29.7% |
-| L0 mlp up_proj  | 0.1333 | 0.0903 | 32.2% |
-| L12 attn o_proj | 0.1333 | 0.0910 | 31.7% |
-| L12 mlp gate_proj| 0.1259 | 0.0873 | 30.7% |
-| **mean** | **0.1253** | **0.0895** | **28.6%** |
+| L0 attn q_proj  | 0.0953 | 0.0917 | **0.0354** |
+| L0 attn v_proj  | 0.1335 | 0.0911 | **0.0382** |
+| L0 mlp down_proj| 0.1305 | 0.0898 | **0.0384** |
+| L0 mlp gate_proj| 0.1255 | 0.0900 | **0.0372** |
+| L0 mlp up_proj  | 0.1333 | 0.0894 | **0.0384** |
+| L12 attn o_proj | 0.1333 | 0.0892 | **0.0377** |
+| L12 mlp gate_proj| 0.1259 | 0.0894 | **0.0360** |
+| **mean** | **0.1253** | **0.0901** | **0.0373** |
 
 ## How to read this honestly
 
-- **~9% is the 8-bit floor.** The scaling recipe was found by an OpenEvolve
-  search and the search could not push below ~9% with any reproducibility-safe
-  (power-of-two) scaling. So 8-bit b-posit is **not** best-in-class low-bit
-  accuracy — INT8/AWQ wins there. b-posit's niche is **bit-reproducibility**
-  across GPU/CPU/RISC-V, which INT8/AWQ cannot give. For accuracy-grade work,
-  the **16-bit rung is bf16-class and reproducible**.
+- **The "~9% floor" was a truncation artifact, not a real floor.** b-posit's naive
+  `encode` rounds *toward zero* — a biased rounding that shrinks every value.
+  Rounding to the **nearest** representable posit (the standard, unbiased choice)
+  **more than halves** the per-layer error (9.0% → 3.7% mean), and the gap is far
+  larger end-to-end: full-model WikiText-2 perplexity is **near-lossless** with
+  round-to-nearest (SmolLM2-135M **+3.1%**, Qwen2.5-Coder-0.5B **+0.68%**) vs
+  +13–20% under truncation, because the truncation bias compounds through depth
+  (see the repo README + `examples/w8a8_rounding_demo.py`). So 8-bit b-posit is
+  **reproducible AND competitively accurate** — the combination INT8/AWQ can't
+  give (they get accuracy but not bit-identical-across-hardware). Round-to-nearest
+  stays fully deterministic, so this costs nothing in reproducibility. For
+  accuracy-grade work the **16-bit rung is bf16-class and reproducible**.
 - **Why power-of-two, not max-scaling.** Per-channel *max* scaling (the INT8
   trick) barely helps posits — posits are tapered, not uniform, so bounding the
   max doesn't place mass in the high-precision band. The win comes from
