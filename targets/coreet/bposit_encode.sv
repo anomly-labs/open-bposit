@@ -31,8 +31,8 @@ module bposit_encode (
       if (msb < 0) return 32'h0000_0000;
 
       scale = msb - FRAC;
-      if (scale >  48) return sign ? 32'h8000_0001 : 32'h7FFF_FFFF;  // MAXNEG/MAXPOS
-      if (scale < -48) return sign ? 32'hFFFF_FFFF : 32'h0000_0001;  // MINNEG/MINPOS
+      if (scale >  240) return sign ? 32'h8000_0001 : 32'h7FFF_FFFF; // MAXNEG/MAXPOS
+      if (scale < -240) return sign ? 32'hFFFF_FFFF : 32'h0000_0001; // MINNEG/MINPOS
 
       if (scale >= 0) begin
         k = scale >>> 3;
