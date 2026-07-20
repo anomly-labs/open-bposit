@@ -104,9 +104,9 @@ def _encode_unsigned_32(value: Fraction) -> int:
     else:
         total_e = 0; v = value
         while v < 1: v *= 2; total_e -= 1
-    if total_e > 48:
+    if total_e > 240:
         return 0x7FFFFFFF
-    if total_e < -48:
+    if total_e < -240:
         return 0x00000001
     k = total_e >> 3       # useed = 256, log_useed = 3 bits per
     e = total_e & 7
@@ -223,9 +223,9 @@ def _encode_unsigned_8(value: Fraction) -> int:
     else:
         total_e = 0; v = value
         while v < 1: v *= 2; total_e -= 1
-    if total_e > 12:
+    if total_e > 24:
         return 0x7F
-    if total_e < -12:
+    if total_e < -24:
         return 0x01
     # total_e = k * 4 + e, since useed_8 = 16 = 2^4
     k = total_e >> 2
@@ -413,9 +413,9 @@ def _encode_unsigned(value: Fraction, mode: str = "truncate") -> int:
             total_e -= 1
 
     # Clamp to bposit16 range
-    if total_e > 48:
+    if total_e > 112:
         return 0x7FFF  # +maxPos
-    if total_e < -48:
+    if total_e < -112:
         return 0x0001  # +minPos
 
     # Decompose: total_e = k * 8 + e, where 0 <= e < 8

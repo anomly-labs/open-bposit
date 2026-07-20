@@ -12,16 +12,16 @@ PY="${PYTHON:-python3}"
 fail=0
 note() { printf '%s\n' "$1"; }
 
-note "[1/4] rung sweep (bp4 / aip5 / bp8)…"
+note "[1/5] rung sweep (bp4 / aip5 / bp8)…"
 out=$("$PY" rung_sweep.py 2>&1) || { echo "$out"; note "FAIL: rung_sweep.py exited nonzero"; fail=1; }
 echo "$out" | grep -q "reproducible:✓" || { note "FAIL: rung_sweep missing 'reproducible:✓'"; fail=1; }
 echo "$out" | grep -qE "^bp8 " || { note "FAIL: rung_sweep missing bp8 row"; fail=1; }
 
-note "[2/4] mixed-precision (bp8 + aip5 in one exact quire)…"
+note "[2/5] mixed-precision (bp8 + aip5 in one exact quire)…"
 out=$("$PY" mixed_precision_demo.py 2>&1) || { echo "$out"; note "FAIL: mixed_precision_demo.py exited nonzero"; fail=1; }
 echo "$out" | grep -q "bit-reproducible across runs: YES" || { note "FAIL: mixed-precision not bit-reproducible"; fail=1; }
 
-note "[3/4] quire matmul determinism (reference)…"
+note "[3/5] quire matmul determinism (reference)…"
 "$PY" - <<'PYEOF' || fail=1
 import sys
 from pathlib import Path
@@ -38,9 +38,13 @@ print("  quire matmul deterministic ✓")
 PYEOF
 [ $? -eq 0 ] || fail=1
 
-note "[4/4] fast exact-quire kernel (bposit_fast) bit-exact vs reference…"
+note "[4/5] fast exact-quire kernel (bposit_fast) bit-exact vs reference…"
 out=$(cd ../reference && "$PY" bposit_fast.py 2>&1) || { echo "$out"; note "FAIL: bposit_fast.py exited nonzero"; fail=1; }
 echo "$out" | grep -q "ALL BIT-EXACT" || { echo "$out" | tail -6; note "FAIL: bposit_fast not bit-exact vs reference"; fail=1; }
+
+note "[5/5] encoder round-trip completeness (encode(value(code))==code, all formats)…"
+out=$(cd ../reference && "$PY" roundtrip_test.py 2>&1) || { echo "$out"; note "FAIL: roundtrip_test.py exited nonzero"; fail=1; }
+echo "$out" | grep -q "ALL COMPLETE" || { echo "$out" | tail -8; note "FAIL: encoder not round-trip-complete"; fail=1; }
 
 if [ "$fail" -eq 0 ]; then
   note ""; note "✅ open-bposit smoke test PASSED"
