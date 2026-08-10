@@ -153,7 +153,7 @@ W8A8 MAC + quire datapath dropped into your RISC-V core or accelerator, integrat
 and **RE-grade verified** (exhaustive differential conformance, cosim, cross-arch
 reproducibility) — that's what Anomly does as a design service: IP-block design,
 core integration (`Zbposit` custom instruction), verification-as-a-service, and
-open-PDK (Sky130) signoff. Reach out: **ry@anomly.com**.
+open-PDK (Sky130) signoff. Reach out: [anomly.com/contact](https://anomly.com/contact).
 
 ## License
 
