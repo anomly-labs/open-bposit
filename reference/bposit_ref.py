@@ -40,6 +40,30 @@ ZERO_32 = 0x00000000
 ONE_32 = 0x40000000
 
 
+# ---------------------------------------------------------------------------
+# Optional BOUNDED-ENCODE mode (decision-prep branch; default OFF = unchanged).
+#
+# Two conventions exist in the wild for these widths (see space-time
+# docs/research/bposit-bounded-vs-unbounded-finding-2026-07-22.md): this
+# reference's default UNBOUNDED encode saturation (+/-24 / +/-112 / +/-240 for
+# bp8/16/32) and the canonical hardware/forge/CUDA BOUNDED saturation
+# (+/-12 / +/-48 / +/-48, the "b" in b-posit, bposit_types.h RS=3/6).
+# Measured 2026-08-12: DECODE agrees between the conventions on all 65,536
+# bp16 codes; the split is exactly these encode clamps (first divergence at
+# |total_e| = 49 for bp16). set_bounded_encode(True) switches the clamps to
+# the canonical bounds; nothing else changes.
+# ---------------------------------------------------------------------------
+_ENCODE_BOUNDS_UNBOUNDED = {8: 24, 16: 112, 32: 240}
+_ENCODE_BOUNDS_BOUNDED   = {8: 12, 16: 48,  32: 48}
+_encode_bounds = dict(_ENCODE_BOUNDS_UNBOUNDED)
+
+
+def set_bounded_encode(on: bool) -> None:
+    """Select the encode saturation convention: canonical bounded (True) or
+    the default unbounded (False)."""
+    _encode_bounds.update(_ENCODE_BOUNDS_BOUNDED if on else _ENCODE_BOUNDS_UNBOUNDED)
+
+
 def decode_bposit32(p: int) -> "Decoded":
     """Decode bposit32 (32-bit, eS=3, rS=6, range 2^-48 to 2^48)."""
     p &= 0xFFFFFFFF
@@ -104,9 +128,9 @@ def _encode_unsigned_32(value: Fraction) -> int:
     else:
         total_e = 0; v = value
         while v < 1: v *= 2; total_e -= 1
-    if total_e > 240:
+    if total_e > _encode_bounds[32]:
         return 0x7FFFFFFF
-    if total_e < -240:
+    if total_e < -_encode_bounds[32]:
         return 0x00000001
     k = total_e >> 3       # useed = 256, log_useed = 3 bits per
     e = total_e & 7
@@ -223,9 +247,9 @@ def _encode_unsigned_8(value: Fraction) -> int:
     else:
         total_e = 0; v = value
         while v < 1: v *= 2; total_e -= 1
-    if total_e > 24:
+    if total_e > _encode_bounds[8]:
         return 0x7F
-    if total_e < -24:
+    if total_e < -_encode_bounds[8]:
         return 0x01
     # total_e = k * 4 + e, since useed_8 = 16 = 2^4
     k = total_e >> 2
@@ -413,9 +437,9 @@ def _encode_unsigned(value: Fraction, mode: str = "truncate") -> int:
             total_e -= 1
 
     # Clamp to bposit16 range
-    if total_e > 112:
+    if total_e > _encode_bounds[16]:
         return 0x7FFF  # +maxPos
-    if total_e < -112:
+    if total_e < -_encode_bounds[16]:
         return 0x0001  # +minPos
 
     # Decompose: total_e = k * 8 + e, where 0 <= e < 8
