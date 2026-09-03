@@ -66,12 +66,12 @@ Measured on: physical AMD Alveo U200, 2026-07-08 (400-PE = 20×20 array, "stage-
 
 ```
 # 140MHz RESULT (2026-07-08): ROUTED clean (Router Completed, NO conflicted nets), final
-# signoff WNS -0.103 (~138.0MHz netlist Fmax — STAGE-3 raised the b20 ceiling from ~121-125,
+# signoff WNS -0.103 (~138.0MHz netlist Fmax — STAGE-3 raised the 400-PE ceiling from ~121-125,
 # +10%+ as designed).
 # HW-VERIFIED on real U200 (2026-07-08 ~18:05): known-answer PASS BOTH modes (fails=0).
 # BENCH NTILES=512 P=256 (record conditions): 16-bit 25.27 GMAC/s, 5-bit 45.47 GMAC/s
-# = NEW b20-class RECORDS (+14.6% / +10.5% over the 125MHz db+diet 22.06/41.16), pure
-# stage-3 clock-lever win at identical array size. All-time records (b25 625-PE @90:
+# = NEW 400-PE-class RECORDS (+14.6% / +10.5% over the 125MHz db+diet 22.06/41.16), pure
+# stage-3 clock-lever win at identical array size. All-time records (625-PE @90:
 # 25.95/47.80) still stand
 # Honest note: kernel programmed at the 140 ask with signoff WNS -0.103; device operates
 # bit-exact at ambient margin (both modes verified on silicon).
