@@ -1,3 +1,4 @@
+<!-- Copyright (c) 2026 Anomly, Inc. SPDX-License-Identifier: Apache-2.0 -->
 # Blackhole SFPU exact-quire kernels
 
 The vectorized 256-bit exact quire for b-posit16 on the Tenstorrent Blackhole SFPU —
@@ -9,10 +10,14 @@ arbitrary-precision oracle in `../../reference/bposit_ref.py`).
 ```
 kernel/                 scalar reference: bp16 decode / encode, exact bp16×bp16 product
                         placement, 256-bit quire add/negate, quire→bp16/bp32 encode,
-                        bf16↔bp16 codec.  Pure 32-bit integer C, header-only, byte-identical
-                        on x86, RV32 (Blackhole baby cores) and the GPU port.
-programming_examples/   18 tt-metal programming examples (host driver + device kernels),
-                        the paper's §4 lineage from lane-parallel decode to the multi-core matmul.
+                        bf16↔bp16 codec, rounded bp16 multiply, log2 LUT.  Pure 32-bit
+                        integer C, header-only, byte-identical on x86, RV32 (Blackhole baby
+                        cores) and the GPU port.  bp16_quire_selftest.c (host, gcc) gates the
+                        fused MADD entry points against the scalar path over 143,641 pairs.
+programming_examples/   24 tt-metal programming examples (host driver + device kernels):
+                        the paper's §4 lineage from lane-parallel decode to the multi-core
+                        matmul, plus the baby-core evaluation kernels behind §6–§7.
+golden/                 oracle-generated JSON goldens the gen_*.py scripts cross-check against.
 ttnn_op/                ttnn.experimental.bposit_quire_matmul — the native op (§4.5).
 tt-metal-integration.patch  registration hooks for the ttnn op (3 files, 60 lines).
 ```
@@ -48,6 +53,19 @@ chain starts there:
 | `bposit_exact_gemm_mc` | the same GEMM distributed over the Tensix grid |
 | `bposit_quire_matmul_ttnn` | host driver for the ttnn op: 64-core exact matmul vs the scalar reference |
 
+Baby-core evaluation kernels — the producers of the paper's §6/§7 numbers that are not
+SFPU lineage (each ships its `gen_*_golden.py` oracle generator, its golden header, and
+`BUILD_NOTES.md` with the on-silicon transcript):
+
+| example | paper result |
+|---|---|
+| `bposit_quire_matmul_multicore` | multi-core exact matmul on the baby cores, one output row per core |
+| `bposit_quire_matmul_multicore_perf` | §7.1: 128×64×128 on 130 cores in 2.653 ms, 395 M exact products/s, 64/64 sampled bit-exact |
+| `bposit_quire_matmul_validate` | §7.1: 8 seeds × 16³, 2048/2048 outputs bit-exact incl. full 256-bit quire byte gates |
+| `bposit_quire_attention` | §6.4: q·k = ±2^33 outliers — fp32 picks the wrong arg-max, the quire is correct (KL 0.403) |
+| `bposit_quire_gradient` | §6.5: quire recovers 33/50/60/67 % of the gradient signal fp32 drops at T = 64/128/192/256 |
+| `bposit_quire_cross_entropy` | §6.5: exact on-device cross-entropy (2.625 bits, 9/9 cases) via `bp16_log2_lut.h` |
+
 ## Building
 
 These are tt-metal programming examples; they are not standalone. The tree was developed
@@ -67,6 +85,7 @@ git checkout 3548ed05 && git submodule update --init --recursive
 #    includes ../../../../kernel/*.h from its device/kernels/ directory.
 cp -r <open-bposit>/targets/blackhole/programming_examples/* tt_metal/programming_examples/
 cp -r <open-bposit>/targets/blackhole/kernel                  tt_metal/kernel
+cp -r <open-bposit>/targets/blackhole/golden                  tt_metal/golden
 ln -s ../../../../tt_metal/kernel ttnn/cpp/ttnn/operations/kernel      # only for step 3
 
 # 2. Register the examples you want:
@@ -74,7 +93,9 @@ for d in bposit_quire_sfpu_add bposit_decode_sfpu bposit_product_sfpu bposit_pla
          bposit_dot_sfpu bposit_dotk_sfpu bposit_dotk_stream_sfpu bposit_matmul_sfpu \
          bposit_matmul_mc_sfpu bposit_matmul_mc2_sfpu bposit_matmul_full_sfpu bposit_matmul_run \
          bposit_cancel_sfpu bposit_bf16_codec bposit_exact_dot bposit_exact_gemm \
-         bposit_exact_gemm_mc bposit_quire_matmul_ttnn; do
+         bposit_exact_gemm_mc bposit_quire_matmul_ttnn \
+         bposit_quire_matmul_multicore bposit_quire_matmul_multicore_perf bposit_quire_matmul_validate \
+         bposit_quire_attention bposit_quire_gradient bposit_quire_cross_entropy; do
   echo "add_subdirectory(\${CMAKE_CURRENT_SOURCE_DIR}/$d)" >> tt_metal/programming_examples/CMakeLists.txt
 done
 
@@ -98,7 +119,9 @@ gate is against the scalar reference, never against the kernel itself.
 
 ## What is *not* here
 
-The paper's evaluation also used an INT8-tensor-core layer matmul, a gradient/loss
-accumulation kernel and a reduce-only kernel that are not part of the exact-quire lineage;
-they are not in this set. The FPGA vector-MAC engine (§7.2) is proprietary RTL — the
+The paper's evaluation also used an INT8-tensor-core layer matmul and a reduce-only
+kernel that are not part of the exact-quire lineage; they are not in this set. The
+gen_*.py generators need the arbitrary-precision oracle `bposit16_reference.py` from
+https://github.com/anomly-labs/mosyne-bposit (clone it beside this repository or set
+`BPOSIT16_REFERENCE_DIR`). The FPGA vector-MAC engine (§7.2) is proprietary RTL — the
 exactness-critical cells extracted from it are formally proven in `../../formal/`.

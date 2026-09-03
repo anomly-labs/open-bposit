@@ -1,0 +1,4 @@
+bounded positive codes: 32256; pairs with product LSB below 2^-96: 37,456; of which oracle-truncate != 0 (kernel formerly dropped): 37,456
+patched kernel vs oracle truncate on all 37,456 sub-binary-point pairs: scalar 0 mismatches, madd 0 mismatches, packed 0 mismatches
+selftest: checked=143641 madd_fail=0 packed_fail=0 acc_stream=OK | ALL BIT-EXACT (exit 0)
+PASS

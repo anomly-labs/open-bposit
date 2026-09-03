@@ -1,0 +1,46 @@
+{
+  "H_decoded": 2.625,
+  "bp32_code": 1161822208,
+  "bp32_code_hex": "0x45400000",
+  "n": 4,
+  "note": "cross-entropy H(p,q) = -\u03a3 p\u00b7log\u2082(q); two-input \u2014 term = bposit16_mul(p, log\u2082_lut[q]), accumulated in the exact quire, negated. quire_le_hex is the kernel's 32-byte target; bp32_code is the final encode. KL(p\u2016q) = H(p,q) \u2212 H(p).",
+  "oracle": "open-bposit bposit16_log2 + bposit16_mul + bposit16_to_quire + quire256 + quire256_to_bposit32 (ES=3, useed=256)",
+  "p_codes": [
+    15360,
+    14336,
+    13312,
+    13312
+  ],
+  "p_codes_hex": [
+    "0x3c00",
+    "0x3800",
+    "0x3400",
+    "0x3400"
+  ],
+  "p_fractions": [
+    "1/2",
+    "1/4",
+    "1/8",
+    "1/8"
+  ],
+  "q_codes": [
+    13312,
+    13312,
+    14336,
+    15360
+  ],
+  "q_codes_hex": [
+    "0x3400",
+    "0x3400",
+    "0x3800",
+    "0x3c00"
+  ],
+  "q_fractions": [
+    "1/8",
+    "1/8",
+    "1/4",
+    "1/2"
+  ],
+  "quire_le_hex": "0000000000000000000000a00200000000000000000000000000000000000000",
+  "schema": "cross_entropy/1"
+}

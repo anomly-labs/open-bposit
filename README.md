@@ -72,8 +72,9 @@ reference/        format reference oracle (decode/encode/quire/mul/add) + confor
 targets/coreet/   CORE-ET (AiNEKKO ET-Minion) SystemVerilog block + testbenches + VERIFICATION.md
 targets/coreet/synth/   sky130 synthesis flow (yosys area + OpenLane P&R/STA) for the cloud labs
 targets/blackhole/  the vectorized 256-bit exact quire on the Tenstorrent Blackhole SFPU
-                  (CoNGA'26 paper): scalar reference kernels, 18 tt-metal programming
-                  examples (decode → product → placement → dot → multi-core matmul, each
+                  (CoNGA'26 paper): scalar reference kernels, 24 tt-metal programming
+                  examples (decode → product → placement → dot → multi-core matmul, plus
+                  the attention / gradient / cross-entropy / perf evaluation kernels, each
                   gated bit-exact on silicon), the native ttnn op + integration patch
 formal/           three Yosys SAT proofs of the exactness-critical quire arithmetic
                   (4:2 carry-save cell, signed one's-complement reduction, two's-complement

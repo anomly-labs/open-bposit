@@ -1,0 +1,227 @@
+{
+  "entries": [
+    {
+      "a_code": 16384,
+      "a_code_hex": "0x4000",
+      "a_value": "1/1",
+      "b_code": 16384,
+      "b_code_hex": "0x4000",
+      "b_value": "1/1",
+      "prod_code": 16384,
+      "prod_code_hex": "0x4000",
+      "prod_decoded": 1.0
+    },
+    {
+      "a_code": 17408,
+      "a_code_hex": "0x4400",
+      "a_value": "2/1",
+      "b_code": 17920,
+      "b_code_hex": "0x4600",
+      "b_value": "3/1",
+      "prod_code": 18944,
+      "prod_code_hex": "0x4a00",
+      "prod_decoded": 6.0
+    },
+    {
+      "a_code": 15360,
+      "a_code_hex": "0x3c00",
+      "a_value": "1/2",
+      "b_code": 15360,
+      "b_code_hex": "0x3c00",
+      "b_value": "1/2",
+      "prod_code": 14336,
+      "prod_code_hex": "0x3800",
+      "prod_decoded": 0.25
+    },
+    {
+      "a_code": 16896,
+      "a_code_hex": "0x4200",
+      "a_value": "3/2",
+      "b_code": 16896,
+      "b_code_hex": "0x4200",
+      "b_value": "3/2",
+      "prod_code": 17536,
+      "prod_code_hex": "0x4480",
+      "prod_decoded": 2.25
+    },
+    {
+      "a_code": 14677,
+      "a_code_hex": "0x3955",
+      "a_value": "1/3",
+      "b_code": 17920,
+      "b_code_hex": "0x4600",
+      "b_value": "3/1",
+      "prod_code": 16383,
+      "prod_code_hex": "0x3fff",
+      "prod_decoded": 0.99951171875
+    },
+    {
+      "a_code": 48128,
+      "a_code_hex": "0xbc00",
+      "a_value": "-2/1",
+      "b_code": 18688,
+      "b_code_hex": "0x4900",
+      "b_value": "5/1",
+      "prod_code": 45824,
+      "prod_code_hex": "0xb300",
+      "prod_decoded": -10.0
+    },
+    {
+      "a_code": 15360,
+      "a_code_hex": "0x3c00",
+      "a_value": "1/2",
+      "b_code": 51200,
+      "b_code_hex": "0xc800",
+      "b_value": "-1/4",
+      "prod_code": 52224,
+      "prod_code_hex": "0xcc00",
+      "prod_decoded": -0.125
+    },
+    {
+      "a_code": 23104,
+      "a_code_hex": "0x5a40",
+      "a_value": "100/1",
+      "b_code": 23104,
+      "b_code_hex": "0x5a40",
+      "b_value": "100/1",
+      "prod_code": 27249,
+      "prod_code_hex": "0x6a71",
+      "prod_decoded": 10000.0
+    },
+    {
+      "a_code": 8192,
+      "a_code_hex": "0x2000",
+      "a_value": "1/256",
+      "b_code": 8192,
+      "b_code_hex": "0x2000",
+      "b_value": "1/256",
+      "prod_code": 4096,
+      "prod_code_hex": "0x1000",
+      "prod_decoded": 1.52587890625e-05
+    },
+    {
+      "a_code": 24568,
+      "a_code_hex": "0x5ff8",
+      "a_value": "255/1",
+      "b_code": 24568,
+      "b_code_hex": "0x5ff8",
+      "b_value": "255/1",
+      "prod_code": 28664,
+      "prod_code_hex": "0x6ff8",
+      "prod_decoded": 65024.0
+    },
+    {
+      "a_code": 19200,
+      "a_code_hex": "0x4b00",
+      "a_value": "7/1",
+      "b_code": 13458,
+      "b_code_hex": "0x3492",
+      "b_value": "1/7",
+      "prod_code": 16383,
+      "prod_code_hex": "0x3fff",
+      "prod_decoded": 0.99951171875
+    },
+    {
+      "a_code": 16896,
+      "a_code_hex": "0x4200",
+      "a_value": "3/2",
+      "b_code": 47872,
+      "b_code_hex": "0xbb00",
+      "b_value": "-5/2",
+      "prod_code": 47232,
+      "prod_code_hex": "0xb880",
+      "prod_decoded": -3.75
+    },
+    {
+      "a_code": 12288,
+      "a_code_hex": "0x3000",
+      "a_value": "1/16",
+      "b_code": 12288,
+      "b_code_hex": "0x3000",
+      "b_value": "1/16",
+      "prod_code": 8192,
+      "prod_code_hex": "0x2000",
+      "prod_decoded": 0.00390625
+    },
+    {
+      "a_code": 19968,
+      "a_code_hex": "0x4e00",
+      "a_value": "12/1",
+      "b_code": 14336,
+      "b_code_hex": "0x3800",
+      "b_value": "1/4",
+      "prod_code": 17920,
+      "prod_code_hex": "0x4600",
+      "prod_decoded": 3.0
+    },
+    {
+      "a_code": 30720,
+      "a_code_hex": "0x7800",
+      "a_value": "16777216/1",
+      "b_code": 30720,
+      "b_code_hex": "0x7800",
+      "b_value": "16777216/1",
+      "prod_code": 32512,
+      "prod_code_hex": "0x7f00",
+      "prod_decoded": 281474976710656.0
+    },
+    {
+      "a_code": 2048,
+      "a_code_hex": "0x0800",
+      "a_value": "1/16777216",
+      "b_code": 2048,
+      "b_code_hex": "0x0800",
+      "b_value": "1/16777216",
+      "prod_code": 256,
+      "prod_code_hex": "0x0100",
+      "prod_decoded": 3.552713678800501e-15
+    },
+    {
+      "a_code": 31488,
+      "a_code_hex": "0x7b00",
+      "a_value": "1073741824/1",
+      "b_code": 31488,
+      "b_code_hex": "0x7b00",
+      "b_value": "1073741824/1",
+      "prod_code": 32767,
+      "prod_code_hex": "0x7fff",
+      "prod_decoded": 5.192296858534828e+33
+    },
+    {
+      "a_code": 1280,
+      "a_code_hex": "0x0500",
+      "a_value": "1/1073741824",
+      "b_code": 1280,
+      "b_code_hex": "0x0500",
+      "b_value": "1/1073741824",
+      "prod_code": 1,
+      "prod_code_hex": "0x0001",
+      "prod_decoded": 1.925929944387236e-34
+    },
+    {
+      "a_code": 50859,
+      "a_code_hex": "0xc6ab",
+      "a_value": "-1/3",
+      "b_code": 47616,
+      "b_code_hex": "0xba00",
+      "b_value": "-3/1",
+      "prod_code": 16383,
+      "prod_code_hex": "0x3fff",
+      "prod_decoded": 0.99951171875
+    },
+    {
+      "a_code": 15798,
+      "a_code_hex": "0x3db6",
+      "a_value": "5/7",
+      "b_code": 16793,
+      "b_code_hex": "0x4199",
+      "b_value": "7/5",
+      "prod_code": 16381,
+      "prod_code_hex": "0x3ffd",
+      "prod_decoded": 0.99853515625
+    }
+  ],
+  "note": "exact bposit16 multiply (sign\u00b7M_a\u00b7M_b\u00b72^(E2_a+E2_b)); the two-input elementwise primitive behind cross-entropy/KL and bp16-precision Layer-2 contractions. Covers exact, truncated, and saturating products.",
+  "oracle": "open-bposit bposit16_mul (decode \u2192 exact product \u2192 encode_bposit16, truncation, ES=3, useed=256)",
+  "schema": "bp16_mul/1"
+}

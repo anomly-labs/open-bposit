@@ -1,0 +1,35 @@
+reference codec: kernels/bposit16_reference.py
+[PASS] eq(2) value(p) = -value((-p) mod 2^n), all posit16 codes: 65534 non-special codes, 0 mismatches
+[PASS] code count wording: 65,536 total codes, 65534 non-special (0 and NaR excluded) -> the paper's '65,535 posit16 codes' (intro, §4.10, §7) is wrong; §3.1's '65,534 non-special' is right
+[PASS] §3.1 6-bit example 1 01 10 1 (eS=2): canonical -3 (paper -3), sign-magnitude shorthand -3/8 (paper -3/8)
+[PASS] §3.3 T = 8k+e range of the bounded profile (k in [-6,5]): [-48, 47] (paper [-48, 47])
+[NOTE] §3.3 the reference DECODER accepts unbounded regimes: decode_bposit16 spans T in [-112, 112] (k in [-14,14]); the ENCODER clamps to |T|<=48 (bp16_encode.h:26/113), so pipeline codes stay bounded. The paper should say the bound is enforced at encode, not that the format has rS=6 decode
+[PASS] §3.3 4E = 192, + 64 guard = 256: 4*48 = 192, 192+64 = 256
+[PASS] §3.3 eS=5 profile: 4E = 768 + 32 guard = 800: 768+32 = 800
+[PASS] §3.3 Posit Standard 16n rule, n=16: 256
+[PASS] §3.3 exact depth >= 2^63 worst-case same-sign MACs: max value 2^47.x -> max product < 2^96 at bit 192; headroom 2^63 (paper 'at least 2^63')
+[PASS] §4 'approximately 18.3 years at 16 lanes and 1 GHz': 2^63 / (16 * 1e9 /s) = 18.27 years (paper 18.3)
+[PASS] §4 '47,041 of the 1.04e9 positive operand pairs ... 0.0045 %' truncated below 2^-96: 47,041 of 1,040,449,536 (1.04e9) bounded operand pairs have product LSB below 2^-96 (0.0045 %); min single-value E2 = -53; bp16_quire.h `if (shift < 0) return;` truncates such products toward zero, identically in the oracle. Example: 0x101*0x101 = 1089*2^-106. Paper claim is scoped to products with LSB >= 2^-96 (|a|,|b| >~ 2^-37)
+[PASS] eq(4) cout = ((q&x)|((q|x)&~s0))>>31: 2,000,036 32-bit pairs incl. edges: 0 wrong; exhaustive 8-bit analogue: 0 wrong
+[PASS] eq(5) s+c == s0+c0+s1+c1 (mod 2^256) through carry-save: 0/20000 wrong
+[PASS] eq(6) tc = oc + sign (negate-by-invert then add sign): 0/20000 wrong
+[PASS] eq(7) sum tc = sum oc + popcount(signs), 16 lanes: 0/5000 wrong
+[PASS] eq(8) cancellation dot: fp32 0.0, bf16 0.0, quire 62 (paper 0.0 / 0.0 / 62.0); ulp(2^40) in fp32 = 2^17 = 131072 > 1 so units vanish
+[PASS] Table 2 k=64 advantage: 1.01× (paper 1.0×)
+[PASS] Table 2 k=256 advantage: 1.50× (paper 1.5×)
+[PASS] Table 2 k=1024 advantage: 3.50× (paper 3.5×)
+[PASS] Table 2 k=5120 advantage: 14.35× (paper 14.4×)
+[PASS] §5.3 sqrt(k)*eps ~ 1e-5 at k=5120: 4.26e-06
+[PASS] §6 perplexity % SmolLM2 trunc: +13.04 % (paper +13.0)
+[PASS] §6 perplexity % SmolLM2 RTNE: +3.05 % (paper +3.0)
+[PASS] §6 perplexity % Qwen0.5B trunc: +19.58 % (paper +19.6)
+[PASS] §6 perplexity % Qwen0.5B RTNE: +0.73 % (paper +0.7)
+[PASS] §6.2 FPGA vs SFPU 65–120×: 65.7× / 121.0× (paper 65–120×; 121 rounds to 121)
+[PASS] §6.3 exact vs rounded MAC 2.3× smaller / 10.5× faster: 2.31× LUTs, 10.48× Fmax
+[PASS] §6.1 128×64×128 in 2.653 ms = 395 M products/s: 1,048,576 products / 2.653 ms = 395 M/s; 2 flop/product -> 0.79 GFLOP/s (paper 0.79)
+[PASS] §6.1 ~1e5 slower than 91 TFLOP/s engine: 1.15e+05×
+[NOTE] §4 11/20 MAC/µs (streaming K-loop microbenchmark) vs §6 395 M products/s: 20 M/s is the dispatch-dominated K=16 scaling test, 395 M/s the 128×64×128 run with K=64 amortised: both measured, 20× apart because the shapes differ (stated in the text)
+[NOTE] §5 30,077 of 32,768 (host, 32,768-logit instance) vs 131,072 of 131,072 (U200, 8192×16): two shapes of the same 8192×768 · 768×16 GEMM; the paper states both shapes
+[NOTE] §6.4 TPOPS -> per-GEMM times: 2048³ 0.102 ms, 4096³ 0.70 ms (self-consistent)
+
+0 FAIL(s): []

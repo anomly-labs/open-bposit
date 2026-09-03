@@ -9,7 +9,7 @@
 # necessary but NOT the win (no-simulations project rule).
 #
 # Prereqs: tt-kmd + firmware + tt-smi healthy, tt-metal built for blackhole. The
-# card on anomly-lab1 needs a cold boot + tt-flash first — confirm healthy first.
+# A power-cycled card needs a cold boot + tt-flash first — confirm healthy first.
 #
 # This script does NOT build/run by default in CI; it is the on-silicon entry point.
 set -u

@@ -1,3 +1,4 @@
+<!-- Copyright (c) 2026 Anomly, Inc. SPDX-License-Identifier: Apache-2.0 -->
 # bposit_quire_sfpu_add — build notes (lane-parallel exact q256_add on the SFPU)
 
 The **FIRST SFPU-vectorized milestone** of Anomly's exact 256-bit b-posit16
@@ -293,10 +294,9 @@ All paths under `~/development/tt-metal`:
    sweeps, every row yields the same per-lane answer; the host reads lane *j* from
    row 0. If only a subset of faces is desired later, narrow the VectorMode.
 
-5. **Real-silicon availability (EXTERNAL).** Blackhole on `anomly-lab1` last seen
-   D3cold (repo memory `blackhole-card-bringup`); needs a cold boot + tt-flash. A
-   ttsim pass is necessary but NOT the win (no-simulations rule). `run_on_silicon.sh`
-   pre-checks `tt-smi -ls | grep blackhole`.
+5. **Real-silicon availability (EXTERNAL).** A card last seen in D3cold needs a
+   cold boot + tt-flash. A ttsim pass is necessary but NOT the win (no-simulations
+   rule). `run_on_silicon.sh` pre-checks `tt-smi -ls | grep blackhole`.
 
 ## Honest scope
 
