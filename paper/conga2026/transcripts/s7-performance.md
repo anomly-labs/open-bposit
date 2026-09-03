@@ -62,7 +62,7 @@ Measured on: derived ratio (U200 GMAC/s ÷ SFPU emulated rate). Producer: derive
 
 ## §7.2 FPGA U200 — 400-PE variant + mid-multiplier pipeline stage: 25.27 / 45.47 G products/s @140 MHz, WNS −0.103 ns
 
-Measured on: physical AMD Alveo U200, 2026-07-08 (400-PE = 20×20 array, "stage-3" decode pipe = mid-piped multiplier; requested 140 MHz). Producer: proprietary FPGA flow (not published); build-config record note reproduced verbatim:
+Measured on: physical AMD Alveo U200, 2026-07-08 (400-PE = 20×20 array, "stage-3" decode pipe = mid-piped multiplier; requested 140 MHz). Producer: proprietary FPGA flow (not published); build-config record note reproduced below (internal build tags replaced by their array sizes; numbers untouched):
 
 ```
 # 140MHz RESULT (2026-07-08): ROUTED clean (Router Completed, NO conflicted nets), final
