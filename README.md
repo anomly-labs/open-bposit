@@ -71,6 +71,15 @@ reference/        format reference oracle (decode/encode/quire/mul/add) + confor
                   + bposit_quantize.py (reproducibility-safe W8A8 recipe)
 targets/coreet/   CORE-ET (AiNEKKO ET-Minion) SystemVerilog block + testbenches + VERIFICATION.md
 targets/coreet/synth/   sky130 synthesis flow (yosys area + OpenLane P&R/STA) for the cloud labs
+targets/blackhole/  the vectorized 256-bit exact quire on the Tenstorrent Blackhole SFPU
+                  (CoNGA'26 paper): scalar reference kernels, 18 tt-metal programming
+                  examples (decode → product → placement → dot → multi-core matmul, each
+                  gated bit-exact on silicon), the native ttnn op + integration patch
+formal/           three Yosys SAT proofs of the exactness-critical quire arithmetic
+                  (4:2 carry-save cell, signed one's-complement reduction, two's-complement
+                  addend) — self-contained, `./formal/run_formal.sh`
+paper/conga2026/  result → evidence index for the CoNGA'26 paper (which script/transcript
+                  backs each number)
 examples/         HuggingFace W8A8 demo + w8a8_rounding_demo.py (reproducible & near-lossless) + accuracy table
 hdl/              (planned) SpinalHDL source that generates the SystemVerilog
 ```

@@ -1,0 +1,75 @@
+# Copyright (c) 2026 Anomly, Inc.
+# SPDX-License-Identifier: Apache-2.0
+# Registration hooks for the ttnn.experimental.bposit_quire_matmul op against tt-metal 3548ed05
+# (2026-06-05). Apply with: git apply targets/blackhole/tt-metal-integration.patch
+# The programming examples are registered separately — see README.md in this directory.
+diff --git a/ttnn/CMakeLists.txt b/ttnn/CMakeLists.txt
+index 2bebcd00..212d81a1 100644
+--- a/ttnn/CMakeLists.txt
++++ b/ttnn/CMakeLists.txt
+@@ -252,6 +252,7 @@ target_link_libraries(
+         TTNN::Ops::Experimental::Matmul
+         TTNN::Ops::Experimental::PaddedSlice
+         TTNN::Ops::Experimental::MinimalMatmul
++        TTNN::Ops::Experimental::BpositQuireMatmul
+         TTNN::Ops::Experimental::DeepseekMoEPostCombineTilize
+         TTNN::Ops::Experimental::DeepSeekPrefill::PostCombineReduce
+         TTNN::Ops::Experimental::DeepSeek::MoE::MoEGateMM
+@@ -324,6 +325,17 @@ if(WITH_PYTHON_BINDINGS)
+     add_library(Metalium::TTNN ALIAS ttnn) # backwards compatibility. FIXME: remove
+     TT_ENABLE_UNITY_BUILD(ttnn)
+ 
++    # pytensor.cpp (namespace ttnn::tensor) uses unqualified `experimental::...`
++    # that resolves via `using namespace tt::tt_metal`; it must NOT share a unity TU
++    # with any file that makes `ttnn::experimental` visible (e.g. an experimental op's
++    # nanobind header), or that lookup binds to ttnn::experimental and fails. Compile
++    # it standalone to keep it independent of experimental-op unity grouping.
++    set_source_files_properties(
++        cpp/ttnn-nanobind/pytensor.cpp
++        PROPERTIES
++            SKIP_UNITY_BUILD_INCLUSION ON
++    )
++
+     set_target_properties(
+         ttnn
+         PROPERTIES
+@@ -510,6 +522,7 @@ add_subdirectory(cpp/ttnn/operations/experimental/dropout)
+ add_subdirectory(cpp/ttnn/operations/experimental/isin)
+ add_subdirectory(cpp/ttnn/operations/experimental/matmul)
+ add_subdirectory(cpp/ttnn/operations/experimental/minimal_matmul)
++add_subdirectory(cpp/ttnn/operations/experimental/bposit_quire_matmul)
+ add_subdirectory(cpp/ttnn/operations/experimental/deepseek/moe/moe_gate_mm)
+ add_subdirectory(cpp/ttnn/operations/experimental/deepseek/moe/deepseek_moe_gate)
+ add_subdirectory(cpp/ttnn/operations/experimental/topk_router_gpt)
+diff --git a/ttnn/cpp/ttnn/operations/experimental/experimental_nanobind.cpp b/ttnn/cpp/ttnn/operations/experimental/experimental_nanobind.cpp
+index f87a40de..cea60ab0 100644
+--- a/ttnn/cpp/ttnn/operations/experimental/experimental_nanobind.cpp
++++ b/ttnn/cpp/ttnn/operations/experimental/experimental_nanobind.cpp
+@@ -59,6 +59,7 @@
+ #include "ttnn/operations/experimental/test/hang_device/hang_device_operation_nanobind.hpp"
+ #include "ttnn/operations/experimental/test/prefetcher_consumer/dram_prefetcher_consumer_nanobind.hpp"
+ #include "ttnn/operations/experimental/minimal_matmul/minimal_matmul_nanobind.hpp"
++#include "ttnn/operations/experimental/bposit_quire_matmul/bposit_quire_matmul_nanobind.hpp"
+ #include "ttnn/operations/experimental/isin/isin_nanobind.hpp"
+ #include "ttnn/operations/experimental/minimal_matmul/minimal_matmul_split_nanobind.hpp"
+ #include "ttnn/operations/experimental/deepseek/moe/moe_gate_mm/moe_gate_mm_nanobind.hpp"
+@@ -159,6 +160,7 @@ void py_module(nb::module_& mod) {
+ 
+     minimal_matmul::detail::bind_minimal_matmul(mod);
+     minimal_matmul::detail::bind_minimal_matmul_split(mod);
++    bposit_quire_matmul::detail::bind_bposit_quire_matmul(mod);
+ 
+     isin::detail::bind_isin_operation(mod);
+     deepseek::moe::detail::bind_moe_gate_mm(mod);
+diff --git a/ttnn/sources.cmake b/ttnn/sources.cmake
+index 4a032b05..23a9d320 100644
+--- a/ttnn/sources.cmake
++++ b/ttnn/sources.cmake
+@@ -164,6 +164,7 @@ set(TTNN_SRC_PYBIND
+     cpp/ttnn/operations/experimental/conv3d/conv3d_nanobind.cpp
+     cpp/ttnn/operations/experimental/minimal_matmul/minimal_matmul_nanobind.cpp
+     cpp/ttnn/operations/experimental/minimal_matmul/minimal_matmul_split_nanobind.cpp
++    cpp/ttnn/operations/experimental/bposit_quire_matmul/bposit_quire_matmul_nanobind.cpp
+     cpp/ttnn/operations/experimental/deepseek_moe_post_combine_tilize/deepseek_moe_post_combine_tilize_nanobind.cpp
+     cpp/ttnn/operations/experimental/deepseek_prefill/post_combine_reduce/post_combine_reduce_nanobind.cpp
+     cpp/ttnn/operations/experimental/deepseek/moe/moe_gate_mm/moe_gate_mm_nanobind.cpp

@@ -2,3 +2,10 @@ open-bposit — b-posit / AI-Posit reference + RTL
 Copyright (c) 2026 Anomly, Inc.
 
 Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+targets/blackhole/ contains programming examples and a ttnn operation written against
+the Tenstorrent tt-metal / TT-NN framework (https://github.com/tenstorrent/tt-metal,
+Apache-2.0, Copyright (c) Tenstorrent Inc.). The host-side scaffolding of those examples
+(device open/close, buffer and circular-buffer setup, program dispatch) follows the
+structure of tt-metal's own programming examples; the b-posit / exact-quire kernels and
+drivers are Anomly, Inc. originals. tt-metal itself is not redistributed here.
