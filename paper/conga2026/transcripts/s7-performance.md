@@ -60,15 +60,25 @@ Measured on: derived ratio (U200 GMAC/s ÷ SFPU emulated rate). Producer: derive
 - FPGA ratio recomputes as 65.7–121.0× ("65–120×" is fine, "65–121×" is exact).
 ```
 
-## §7.2 FPGA U200 — 400-PE variant + mid-mult pipeline: 25.27 / 45.47 G products/s @140 MHz
+## §7.2 FPGA U200 — 400-PE variant + mid-multiplier pipeline stage: 25.27 / 45.47 G products/s @140 MHz, WNS −0.103 ns
 
-Measured on: U200, the 140 MHz build. Producer: proprietary FPGA flow (not published).
+Measured on: physical AMD Alveo U200, 2026-07-08 (400-PE = 20×20 array, "stage-3" decode pipe = mid-piped multiplier; requested 140 MHz). Producer: proprietary FPGA flow (not published); build-config record note reproduced verbatim:
 
 ```
-(A newer stage-3 @140 MHz config trades throughput down to 25.27 / 45.47 — NOT the headline.)
+# 140MHz RESULT (2026-07-08): ROUTED clean (Router Completed, NO conflicted nets), final
+# signoff WNS -0.103 (~138.0MHz netlist Fmax — STAGE-3 raised the b20 ceiling from ~121-125,
+# +10%+ as designed).
+# HW-VERIFIED on real U200 (2026-07-08 ~18:05): known-answer PASS BOTH modes (fails=0).
+# BENCH NTILES=512 P=256 (record conditions): 16-bit 25.27 GMAC/s, 5-bit 45.47 GMAC/s
+# = NEW b20-class RECORDS (+14.6% / +10.5% over the 125MHz db+diet 22.06/41.16), pure
+# stage-3 clock-lever win at identical array size. All-time records (b25 625-PE @90:
+# 25.95/47.80) still stand
+# Honest note: kernel programmed at the 140 ask with signoff WNS -0.103; device operates
+# bit-exact at ambient margin (both modes verified on silicon).
 ```
 
-Only the 25.27 / 45.47 @140 MHz throughput is recorded verbatim in the measurement notes (which frame the 90 MHz 625-PE run as the design of record and the 140 MHz build as a throughput-down variant). The −0.103 ns slack figure in the paper comes from that build's Vivado timing report, which is not reproduced here.
+The 625-PE @90 MHz run above remains the design of record; this build is the same
+exactness-critical datapath at a smaller array and a higher clock.
 
 ## §7.2 — exact MAC place-and-routes at 341.6 MHz in isolation; tapeout die did not power on (power-rail)
 
