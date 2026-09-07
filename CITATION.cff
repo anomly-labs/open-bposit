@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use open-bposit, please cite the CoNGA'26 paper and this software."
+title: "open-bposit: a vectorized exact quire for b-posit arithmetic"
+type: software
+authors:
+  - family-names: Bruscoe
+    given-names: Ry
+    affiliation: "Anomly, Inc."
+  - family-names: Hunhold
+    given-names: Laslo
+    affiliation: "Openchip"
+repository-code: "https://github.com/anomly-labs/open-bposit"
+license: Apache-2.0
+keywords:
+  - posit
+  - quire
+  - exact accumulation
+  - reproducible inference
+  - b-posit
+preferred-citation:
+  type: conference-paper
+  title: "A Vectorized Exact Quire for B-Posit Arithmetic"
+  authors:
+    - family-names: Bruscoe
+      given-names: Ry
+    - family-names: Hunhold
+      given-names: Laslo
+  conference:
+    name: "Conference on Next-Generation Arithmetic (CoNGA'26)"
+  year: 2026

@@ -1,0 +1,12 @@
+{
+  "title": "open-bposit: a vectorized exact quire for b-posit arithmetic",
+  "description": "Reference kernels, a Tenstorrent ttnn operator, formal proofs and the CoNGA'26 evidence index for b-posit arithmetic with a 256-bit exact quire accumulator: order-independent, bit-reproducible accumulation across CPU, GPU, FPGA and accelerator implementations.",
+  "creators": [
+    {"name": "Bruscoe, Ry", "affiliation": "Anomly, Inc."},
+    {"name": "Hunhold, Laslo", "affiliation": "Openchip"}
+  ],
+  "license": "Apache-2.0",
+  "upload_type": "software",
+  "access_right": "open",
+  "keywords": ["posit", "quire", "exact accumulation", "reproducible inference", "b-posit", "CoNGA"]
+}
