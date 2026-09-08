@@ -5,8 +5,8 @@
     {"name": "Bruscoe, Ry", "affiliation": "Anomly, Inc."},
     {"name": "Hunhold, Laslo", "affiliation": "Openchip"}
   ],
-  "license": "Apache-2.0",
+  "license": "apache-2.0",
   "upload_type": "software",
   "access_right": "open",
-  "keywords": ["posit", "quire", "exact accumulation", "reproducible inference", "b-posit", "CoNGA"]
+  "keywords": ["posit", "quire", "exact accumulation", "reproducible inference", "b-posit"]
 }
