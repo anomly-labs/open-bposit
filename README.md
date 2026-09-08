@@ -1,5 +1,7 @@
 # open-bposit
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22651392.svg)](https://doi.org/10.5281/zenodo.22651392)
+
 **An open, bit-reproducible low-precision number format for AI inference.**
 Run models with **~30–50% less memory** *and* results that are **identical to the
 bit on any GPU, CPU, or RISC-V core** — something INT8/AWQ/GPTQ quantization
