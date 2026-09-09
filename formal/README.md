@@ -32,5 +32,22 @@ Yosys 0.33 (git sha1 2584903a060)
 == summary: 3 proven, 0 failed ==
 ```
 
+Run it **from the repository root**, not from inside `formal/` — the harness references its
+sources as `formal/*.v`, so a different working directory reports `File ... not found` for all
+three rather than a proof failure.
+
+Re-checked on a much newer Yosys than the transcript above, 2026-09-09:
+
+```
+== exact-quire datapath: formal (SAT) proofs ==
+Yosys 0.66+94 (git sha1 f33cc39a0, Release, Clang /usr/bin/clang++ 18.1.8)
+  PROVEN  csa_compressor         (resolved == reference, all inputs)
+  PROVEN  oc_signed_reduction    (tc == oc_plus_sign, all inputs)
+  PROVEN  quire_addend           (addend == reference, all inputs)
+== summary: 3 proven, 0 failed ==
+```
+
+So the proofs are not pinned to the Yosys they were written against; they hold on 0.33 and on 0.66.
+
 Yosys without root: `apt-get download yosys && dpkg-deb -x yosys_*.deb ./yosys-root`
 then `PATH=./yosys-root/usr/bin:$PATH ./formal/run_formal.sh`.
