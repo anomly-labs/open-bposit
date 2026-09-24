@@ -282,13 +282,19 @@ def bposit8_mul(a: int, b: int) -> int:
     return encode_bposit8(fa * fb)
 
 
-def bposit8_to_quire(p: int) -> int:
+def bposit8_to_quire(p: int, *, strict: bool = True) -> int:
+    """bposit8 code -> exact quire fixed-point integer.
+
+    Routed through the same strict helper as bposit16 for consistency. No bposit8
+    code can actually trigger it — the width's minpos is far above the 2^-96 grid,
+    verified by enumerating all 256 codes in roundtrip_test.py — but a conversion
+    that is exact only because of the width it happens to be used at is one bug
+    away from not being exact, so the check is here rather than argued.
+    """
     d = decode_bposit8(p)
     if d.is_special:
         return 0
-    f = decoded_to_fraction_8(d)
-    f *= (1 << QUIRE_FRAC_BITS)
-    return int(f)
+    return _to_quire_grid(decoded_to_fraction_8(d), strict=strict)
 
 
 
@@ -603,14 +609,55 @@ def bposit16_reciprocal(p: int) -> int:
     return encode_bposit16(Fraction(1) / f)
 
 
-def bposit16_to_quire(p: int) -> int:
+class QuireGridError(ArithmeticError):
+    """A value cannot sit exactly on the quire's fixed-point grid.
+
+    Raised rather than truncated. Added 2026-09-24 with a measurement: the
+    previous ``int(f)`` silently dropped every bit below 2^-96, and while only SIX
+    of the 65,534 non-special bposit16 codes have values that fine, for all six the
+    loss was total — the quire came out all-zero. ``bposit16_add(0x0001, 0x0001)``
+    therefore returned ZERO, which is two positive numbers adding to nothing.
+
+    A rounding inside an accumulator whose whole purpose is that it does not round
+    is the one bug this file must not have, so it is now an exception instead of a
+    silent answer. The six reachable codes are exactly the extremes of the
+    UNBOUNDED envelope, which is a direct argument for the bounded one: with
+    |total exponent| <= 48, minpos x minpos is 2^-96 — precisely one quire LSB —
+    so nothing in the bounded format can fall off the bottom of the accumulator.
+    """
+
+
+def _to_quire_grid(f: "Fraction", *, strict: bool) -> int:
+    """Exact rational -> quire fixed-point integer.
+
+    ``strict`` (the default for every caller here) raises rather than truncate.
+    ``strict=False`` restores the pre-2026-09-24 truncating behaviour for a caller
+    that has measured that it does not care; it exists so the change is opt-out
+    rather than a wall, not because truncating is ever correct.
+    """
+    scaled = f * (1 << QUIRE_FRAC_BITS)
+    if scaled.denominator != 1:
+        if strict:
+            raise QuireGridError(
+                f"{f} needs more than {QUIRE_FRAC_BITS} fraction bits "
+                f"(residual denominator {scaled.denominator}); the quire cannot "
+                "hold it exactly"
+            )
+        return int(scaled)
+    return int(scaled.numerator)
+
+
+def bposit16_to_quire(p: int, *, strict: bool = True) -> int:
+    """bposit16 code -> exact quire fixed-point integer.
+
+    Raises :class:`QuireGridError` for the six codes whose value is finer than the
+    2^-96 grid. See that class for the measurement and for why the answer is an
+    exception rather than a truncation.
+    """
     d = decode_bposit16(p)
     if d.is_special:
         return 0
-    f = decoded_to_fraction(d)
-    # Multiply by 2^QUIRE_FRAC_BITS to convert to fixed-point integer
-    f *= (1 << QUIRE_FRAC_BITS)
-    return int(f)  # truncating — round half away or to-even is the proper choice
+    return _to_quire_grid(decoded_to_fraction(d), strict=strict)
 
 
 def quire256_add(q: int, x: int) -> int:
@@ -666,9 +713,17 @@ def bposit16_mul_via_log_exp2(a: int, b: int) -> int:
     la = bposit16_log2(abs_a)
     lb = bposit16_log2(abs_b)
 
-    # Sum logs in quire256, encode back to bposit16
-    q = bposit16_to_quire(la) + bposit16_to_quire(lb)
-    log_sum = quire256_to_bposit16(q)
+    # Sum logs in quire256, encode back to bposit16. The logs of in-range
+    # operands are small numbers, so the quire grid holds them; the guard is here
+    # because "small in practice" is how the truncation survived for months.
+    try:
+        q = bposit16_to_quire(la) + bposit16_to_quire(lb)
+        log_sum = quire256_to_bposit16(q)
+    except QuireGridError:
+        log_sum = encode_bposit16(
+            decoded_to_fraction(decode_bposit16(la))
+            + decoded_to_fraction(decode_bposit16(lb))
+        )
     mag = bposit16_exp2(log_sum)
 
     if mag == NAR:
@@ -695,9 +750,19 @@ def bposit16_add(a: int, b: int) -> int:
         return b
     if b == ZERO:
         return a
-    qa = bposit16_to_quire(a)
-    qb = bposit16_to_quire(b)
-    return quire256_to_bposit16(qa + qb)
+    try:
+        return quire256_to_bposit16(bposit16_to_quire(a) + bposit16_to_quire(b))
+    except QuireGridError:
+        # One or both operands are finer than the 2^-96 quire grid. Before
+        # 2026-09-24 this path truncated them to zero, so add(minpos, minpos)
+        # returned ZERO — two positive numbers adding to nothing. The exact
+        # rational sum is the right answer and this is a reference
+        # implementation, so it takes it; a DEVICE with a Q96 quire genuinely
+        # cannot, which is an argument for the bounded envelope rather than a
+        # reason to keep returning the wrong number here.
+        return encode_bposit16(
+            decoded_to_fraction(decode_bposit16(a)) + decoded_to_fraction(decode_bposit16(b))
+        )
 
 
 def quire256_to_bposit32(q: int) -> int:
@@ -963,18 +1028,20 @@ def aiposit5_add(a: int, b: int) -> int:
                      encode_aiposit5, NAR_5, ZERO_5)
 
 
-def bposit4_to_quire(p: int) -> int:
+def bposit4_to_quire(p: int, *, strict: bool = True) -> int:
+    """bposit4 code -> exact quire fixed-point integer (see bposit8_to_quire)."""
     d = decode_bposit4(p)
     if d.is_special:
         return 0
-    return int(decoded_to_fraction_4(d) * (1 << QUIRE_FRAC_BITS))
+    return _to_quire_grid(decoded_to_fraction_4(d), strict=strict)
 
 
-def aiposit5_to_quire(p: int) -> int:
+def aiposit5_to_quire(p: int, *, strict: bool = True) -> int:
+    """aiposit5 code -> exact quire fixed-point integer (see bposit8_to_quire)."""
     d = decode_aiposit5(p)
     if d.is_special:
         return 0
-    return int(decoded_to_fraction_5(d) * (1 << QUIRE_FRAC_BITS))
+    return _to_quire_grid(decoded_to_fraction_5(d), strict=strict)
 
 
 # ---- Unified quire:  "single quire architecture supports all five
