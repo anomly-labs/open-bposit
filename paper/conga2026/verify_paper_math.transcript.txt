@@ -31,5 +31,14 @@ reference codec: kernels/bposit16_reference.py
 [NOTE] §4 11/20 MAC/µs (streaming K-loop microbenchmark) vs §6 395 M products/s: 20 M/s is the dispatch-dominated K=16 scaling test, 395 M/s the 128×64×128 run with K=64 amortised: both measured, 20× apart because the shapes differ (stated in the text)
 [NOTE] §5 30,077 of 32,768 (host, 32,768-logit instance) vs 131,072 of 131,072 (U200, 8192×16): two shapes of the same 8192×768 · 768×16 GEMM; the paper states both shapes
 [NOTE] §6.4 TPOPS -> per-GEMM times: 2048³ 0.102 ms, 4096³ 0.70 ms (self-consistent)
+[PASS] §5 boundary band: 52 of 433 = 12 %: 12.0 %
+[PASS] §4.1 47,041 of 1,040,449,536 pairs = 0.0045 %: 0.0045 %
+[PASS] §4.1 Q_F=106 headroom 2^53 MACs ≈ 6.5 days at 16 lanes / 1 GHz: 6.52 days
+[PASS] §4.1 shift range [0,190] + 21 product bits ≤ 255; MSB reaches 211: 190 + 21 = 211
+[PASS] §7.4 25 scale shifts × 2^32 inputs = 1.07e11 comparisons: 1.074e+11
+[PASS] §7.4 INT32 exact for K ≤ 133,144 (|ab| ≤ 127² = 16,129): floor((2^31-1)/16129) = 133,144
+[PASS] §7.3 ratios 2.3× LUT, 10.5× Fmax, 2.4× power, 3.6× CARRY8: 2.31, 10.48, 2.38, 3.62
+[NOTE] §7.3 regenerated exact MAC 4,184 LUTs vs paper 4,179: 0.12 % (submission-era RTL, see camera-ready/fpga-mac-cost/PROVENANCE.md); 341.6 MHz = 1/2.927 ns constraint, achieved 425.0 MHz
+[NOTE] §7.4 Table 4 full pipeline 0.72×–2.85× BF16; codec 1.85 TB/s vs 1.79 TB/s DRAM: measured, bench_pipeline_stages.cu; the codec sits at the memory roofline
 
 0 FAIL(s): []

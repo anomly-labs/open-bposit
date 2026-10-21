@@ -1,0 +1,47 @@
+=== 16-bit accumulator control: identical b-posit16 operands ===
+model  : Llama-3.2-1B-Instruct  (hidden 2048)
+layer  : model.layers.0.self_attn.q_proj.weight  shape (2048, 2048)
+shape  : M=8 K=2048 N=16  (128 outputs, 2048-term contractions)
+operands: b-posit16, encoded once, identical for every arm
+seed   : 0 (same token draw as the int8 control)
+
+product exponent spread: 2^-44 .. 2^-10  (span 34 binades)
+  a quire with QF fraction bits is exact iff QF >= 44
+
+arm            outputs != exact    max |rel err|   mean |rel err|
+-----------------------------------------------------------------
+quire QF=96               0/128                0                0
+quire QF=106              0/128                0                0
+fp32 seq                128/128        5.268e-06        4.039e-07
+fp32 pairwise            128/128        1.703e-06        9.180e-08
+bf16 seq                128/128        1.064e+00        6.532e-02
+
+Every arm consumed the identical b-posit16 products; the only
+difference is the accumulator. On real Llama operands QF=96 is
+already exact, because the products never reach the radix.
+
+=== Part B: the QF the format requires, by enumeration ===
+legal codes enumerated      : 65534
+total-exponent reach        : 2^-112 .. 2^112  (unbounded reference)
+bounded profile |T| <= 48   : 64544 codes (98.5% of the lattice)
+
+lowest set bit, bounded     : 2^-53  (32 codes attain it, e.g. 0x0101 = 3.663736e-15)
+  note this is below 2^-48: the regime bound caps the EXPONENT,
+  while the mantissa carries 5 further bits under it.
+a product of two such needs  : fraction bits down to 2^-106
+
+  => exact on the bounded profile iff QF >= 106
+  => exact on the unbounded reach iff QF >= 224
+
+                       contraction            QF=96           QF=106
+--------------------------------------------------------------------
+                    minbit^2 alone        truncated            exact
+                    minbit^2 + 1.0        truncated            exact
+        minbit^2 + 1023 unit terms        truncated            exact
+
+So QF=106 is not a safety margin, it is the exact requirement
+of the bounded b-posit16 profile: 2 x 53 fraction bits. The shipped
+QF=96 profile is exact on every product a real 16-bit workload
+generates (Part A) and truncates only products whose magnitude is
+below 2^-96, which the enumeration shows requires both operands
+within 5 binades of the bottom of the format.

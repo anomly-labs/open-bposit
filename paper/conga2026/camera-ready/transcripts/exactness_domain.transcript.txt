@@ -1,0 +1,20 @@
+decoder T range            : [-112, 112]
+bounded positive codes     : 32256
+min value LSB exponent     : 2^-53   (code 0x0101, value 33/9007199254740992)
+max magnitude              : 2^48-  (code 0x7eff)
+min magnitude              : 1/281474976710656 = 2^-48
+
+product LSB floor          : 2^-106  -> 106 fractional bits needed
+product MSB ceiling        : < 2^96 -> 96 integer bits needed
+total bits for exactness   : 202  (quire is 256)
+  QF= 96: product field bits 192, guard 63 bits -> depth 2^63 same-sign MACs = 5.765e+08 s = 6.67e+03 days = 18.27 years   [truncates the tiny-product corner]
+  QF=106: product field bits 202, guard 53 bits -> depth 2^53 same-sign MACs = 5.629e+05 s = 6.52 days = 0.01784 years   [EXACT over whole profile]
+
+QF=96 positive operand pairs        : 1,040,449,536
+  pairs with product LSB < 2^-96    : 47,041  (0.0045 %)
+  both operands need LSB <= 2^-49 for truncation (paper: |a|,|b| ~< 2^-37)
+  worked example: 0x101^2 = (33/9007199254740992)^2 = 1089/81129638414606681695789005144064 , LSB 2^-106
+  R3's example a=(33/32)2^-48: a^2 = 1089/81129638414606681695789005144064 = (1089/1024)*2^-96, LSB 2^-106; representable at QF=106? True; at QF=96? False
+    is a itself a bounded b-posit16 code? encode -> 0x0101, decodes to 33/9007199254740992, exact=True
+
+QF=106 verdict: worst product LSB over the profile is 2^-106; 106 fractional bits place it exactly -> True

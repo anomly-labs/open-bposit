@@ -2,7 +2,7 @@
 # Copyright (c) 2026 Anomly, Inc.
 # SPDX-License-Identifier: Apache-2.0
 """Re-execute every equation / algorithm / derived number in the CoNGA'26
-paper (main.tex as submitted, 2026-09) against REAL repo code — no simulation, no hand-waving.
+paper (camera-ready main.tex, 2026-10; first written against the 2026-09 submission) against REAL repo code — no simulation, no hand-waving.
 
 Each check prints PASS / FAIL / NOTE with the recomputed value next to the
 paper's value. The reference codec is the Apache-2.0 oracle the Blackhole
@@ -300,6 +300,27 @@ def check_derived_numbers():
     report("§6.4 TPOPS -> per-GEMM times", None, f"2048³ {t2048*1e3:.3f} ms, 4096³ {t4096*1e3:.2f} ms (self-consistent)")
 
 
+# ---------------------------------------------------------------------------
+# Camera-ready additions (October 2026): derived numbers stated in prose
+# ---------------------------------------------------------------------------
+def check_camera_ready():
+    report("§5 boundary band: 52 of 433 = 12 %", abs(52 / 433 - 0.12) < 0.005, f"{52/433*100:.1f} %")
+    pairs = 1_040_449_536
+    report("§4.1 47,041 of 1,040,449,536 pairs = 0.0045 %", abs(47041 / pairs * 100 - 0.0045) < 0.0002, f"{47041/pairs*100:.4f} %")
+    days = 2 ** 53 / (16 * 1e9) / 86400
+    report("§4.1 Q_F=106 headroom 2^53 MACs ≈ 6.5 days at 16 lanes / 1 GHz", abs(days - 6.5) < 0.05, f"{days:.2f} days")
+    report("§4.1 shift range [0,190] + 21 product bits ≤ 255; MSB reaches 211", 190 + 21 <= 255 and 190 + 21 == 211, "190 + 21 = 211")
+    comps = 25 * 2 ** 32
+    report("§7.4 25 scale shifts × 2^32 inputs = 1.07e11 comparisons", abs(comps / 1.07e11 - 1) < 0.01, f"{comps:.3e}")
+    kmax = (2 ** 31 - 1) // (127 * 127)
+    report("§7.4 INT32 exact for K ≤ 133,144 (|ab| ≤ 127² = 16,129)", kmax == 133144, f"floor((2^31-1)/16129) = {kmax:,}")
+    report("§7.3 ratios 2.3× LUT, 10.5× Fmax, 2.4× power, 3.6× CARRY8",
+           abs(9673 / 4179 - 2.3) < 0.05 and abs(341.6 / 32.6 - 10.5) < 0.05 and abs(38 / 16 - 2.4) < 0.05 and abs(782 / 216 - 3.6) < 0.05,
+           f"{9673/4179:.2f}, {341.6/32.6:.2f}, {38/16:.2f}, {782/216:.2f}")
+    report("§7.3 regenerated exact MAC 4,184 LUTs vs paper 4,179", None, f"{(4184-4179)/4179*100:.2f} % (submission-era RTL, see camera-ready/fpga-mac-cost/PROVENANCE.md); 341.6 MHz = 1/2.927 ns constraint, achieved 425.0 MHz")
+    report("§7.4 Table 4 full pipeline 0.72×–2.85× BF16; codec 1.85 TB/s vs 1.79 TB/s DRAM", None, "measured, bench_pipeline_stages.cu; the codec sits at the memory roofline")
+
+
 if __name__ == "__main__":
     print(f"reference codec: {os.path.basename(os.path.dirname(R.__file__))}/{os.path.basename(R.__file__)}")
     check_decode_symmetry()
@@ -309,4 +330,5 @@ if __name__ == "__main__":
     check_csa_and_signs()
     check_cancellation()
     check_derived_numbers()
+    check_camera_ready()
     print(f"\n{len(FAILS)} FAIL(s): {FAILS}")

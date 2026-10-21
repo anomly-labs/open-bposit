@@ -43,7 +43,7 @@ from the layout of this repository on 2026-09-03.
 
 ## Index
 
-Paper section numbers follow the submitted `main.tex`. "Producer" is the kernel or
+Paper section numbers follow the camera-ready `main.tex` (October 2026); the camera-ready additions are indexed in the addendum below. "Producer" is the kernel or
 script that measured the number; the path says where it lives when public.
 
 ### §4 Exact quire implementation, §5 Correctness
@@ -58,7 +58,7 @@ script that measured the number; the path says where it lives when public.
 | oracle agreement over all 65,534 non-special posit16 codes; b-posit8 exhaustive | `reference/bposit_ref.py`, `reference/gen_bp8_exhaustive.py`, `targets/coreet` | public |
 | ET-SoC1 independent host: encoder 132,811/132,811, b-posit8 65,536/65,536, RTL exponent-clamp defect caught; RV64 W8A8 byte-identical to x86 | `targets/coreet` (`make verify-full`) | public |
 | order independence: host bf16 30,077 of 32,768 logits differ, KL ≤ 0.13; U200 quire engine 131,072/131,072 bit-identical across two K orders | host demo and U200 engine are internal | transcript (`s5-correctness.md`) |
-| reward verification: 4,096 answers, 8 BF16 reduction shapes flip 52 verdicts, exact quire flips 0 | internal | transcript (`s5-correctness.md`) |
+| reward verification: 4,096 answers, 8 BF16 reduction shapes; 433 answers lie in the 2 %-of-range boundary band and 52 of them (12 %) flip verdict, exact quire flips 0 | internal | transcript (`s5-correctness.md`) |
 | rendering: float32 differs on 12,285/12,288 pixels up to 14 ULP at 128 spp; quire bit-identical | internal | transcript (`s5-correctness.md`) |
 
 ### §6 Evaluation
@@ -80,10 +80,33 @@ script that measured the number; the path says where it lives when public.
 |---|---|---|
 | 128×64×128 exact-quire matmul on 130 cores: 2.653 ms, 395 M products/s, 64/64 sampled bit-exact; 8 seeds × 16³ 2048/2048 bit-exact; 11 / 20 MAC/µs streaming K-loop on 64 / 130 cores | `bposit_quire_matmul_multicore_perf`, `bposit_quire_matmul_validate`, `bposit_dotk_stream_sfpu` (timings are silicon measurements; see each `BUILD_NOTES.md`) | public |
 | ≈10^5 below the native 91 TFLOP/s engine | derived | derived |
-| U200 625-PE engine @90 MHz: 25.95 G (b-posit16) / 47.80 G (5-bit) exact products/s, bit-exact; 400-PE @140 MHz variant | proprietary FPGA flow (only the CSA cell is published, `formal/bposit_csa_cs42.v`) | transcript (`s7-performance.md`) |
+| U200 625-PE engine @90 MHz: 25.95 G (b-posit16) / 47.80 G (5-bit) exact products/s, bit-exact; the 400-PE @140 MHz build is the order-independence engine of §5 (131,072/131,072) | proprietary FPGA flow (only the CSA cell is published, `formal/bposit_csa_cs42.v`) | transcript (`s7-performance.md`) |
 | 65–120× the SFPU throughput | `verify_paper_math.py` | derived |
-| exact vs rounded MAC: 4,179 LUTs @341.6 MHz vs 9,673 LUTs @32.6 MHz (2.3× smaller, 10.5× faster); Yosys 0.84× cells; 867 differential dot tests | Vivado / Yosys on the single-lane exact and rounded MAC RTL (the chip RTL is not published; its exactness-critical cells are the proven `formal/` blocks); the RTNE encoder model is `mosyne-bposit/kernels/bposit16_reference.py` | transcript (`s7-performance.md`) + derived |
+| exact vs rounded MAC: 4,179 LUTs / 294 FF / 216 CARRY8 @341.6 MHz, 16 mW vs 9,673 LUTs / 48 FF / 782 CARRY8 @32.6 MHz, 38 mW (2.3× smaller, 10.5× faster, 2.4× lower power); fp16 fused MAC 7 mW; Yosys 0.84× cells; 867 differential dot tests | Vivado reports regenerated 2026-10-17 from the submission-era RTL in `camera-ready/fpga-mac-cost/` (see `PROVENANCE.md`); power from the August iso-frequency run | Vivado / Yosys on the single-lane exact and rounded MAC RTL (the chip RTL is not published; its exactness-critical cells are the proven `formal/` blocks); the RTNE encoder model is `mosyne-bposit/kernels/bposit16_reference.py` | transcript (`s7-performance.md`) + derived |
 | RTX 5090 INT8 IMMA: 167.8 TPOPS @2048³ (1.00× BF16), 197.4 @4096³ (1.14×), up to 1.33×; Qwen2.5-Coder-1.5B 133.2 vs 132.8 tok/s; 5 runs → 1 bit-identical result vs 5 distinct with fp32 atomicAdd; 3B FFN 3.56 % L2 | `mosyne-bposit/kernels/` (`bench_imma_vs_qmma.cu`, `bench_robust.cu`, `test_determinism_headline.cu`, `test_ffn_layer_*.cu`) | public |
+
+## Camera-ready addendum (October 2026)
+
+Results added or changed between the submitted and the camera-ready `main.tex`, in
+response to the reviews. Scripts live in `camera-ready/`; measured outputs in
+`camera-ready/transcripts/`.
+
+| result | producer | class |
+|---|---|---|
+| §4.1 Proposition 1: 32,256 encoder-reachable codes, minimum E2 = 2^-53 at `0x0101`, product LSB reach 2^-106; 47,041 of 1,040,449,536 positive pairs (0.0045 %) truncate at Q_F = 96; Q_F = 106 places every product exactly, shift range [0, 190], headroom 2^53 ≈ 6.5 days at 16 lanes / 1 GHz | `camera-ready/exactness_domain.py`, `qf106_wellformed.py`, `qf106_exact_reference.py` (+ `.transcript.txt`) | public |
+| §5 boundary-band correction: 52 of the 433 boundary-band answers (12 %) flip | `verify_paper_math.py` | derived |
+| §6.7 int8 accumulator control (Llama-3.2-1B q_proj, M=64 K=2048 N=2048): int64, int32, sequential fp32 and blocked fp32 agree on all 131,072 outputs; INT32 exact for K ≤ 133,144 | `camera-ready/accumulator_control.py` (needs the Llama-3.2-1B-Instruct weights from Hugging Face); transcript `accumulator-control-2026-10-16.txt` | public script, transcript output |
+| §6.7 b-posit16 accumulator control (same layer, M=8 K=2048 N=16): quire exact on 128/128 at Q_F = 96 and 106; sequential fp32 / pairwise fp32 / sequential bf16 differ on every output (mean 4.0e-7 / 9.2e-8 / 6.5 %) | `camera-ready/accumulator_control_bp16.py`; transcript `bp16-accumulator-control-2026-10-17.txt` | public script, transcript output |
+| §6.5 flash-attention directional BF16 bias reproduced against the exact quire | transcript `flash-attention-bias-2026-10-17.txt` | transcript |
+| §7.4 codebook: of 255 non-NaR b-posit8 codes, 80 carried losslessly on the 2^-6 grid, 64 truncated, 111 saturate; product bound 127² = 16,129; INT32 exact for K ≤ 133,144 | `camera-ready/imma_codebook.py`, `gen_bposit8_int8_lut.py` → `bposit8_int8_lut.h` (regenerates byte-identical) | public |
+| §7.4 Table 4 stage split (decode / IMMA GEMM / quire read-out + encode) at five shapes; full pipeline 0.72×–2.85× BF16; codec at 1.85 TB/s vs 1.79 TB/s DRAM | `camera-ready/bench_pipeline_stages.cu` (RTX 5090, cuBLASLt); transcript `pipeline-stages-2026-10-16.txt` | public |
+| §7.4 closed-form b-posit32 encoder = loop form over all 2^32 inputs at each of 25 scale shifts, 1.07·10^11 comparisons, 0 mismatches | `camera-ready/verify_encoder_exhaustive.cu`; transcript `encoder-exhaustive-2026-10-16.txt` | public |
+| §7.3 post-route LUT / FF / CARRY8 / DSP / BRAM / power table and the fp16 7 mW reference | `camera-ready/fpga-mac-cost/` reports + `PROVENANCE.md` | transcript (RTL not published) |
+
+The scripts import `bposit16_reference.py` the same way `verify_paper_math.py` does
+(`BPOSIT16_REFERENCE_DIR`, or a `mosyne-bposit` clone beside this repository). The two
+CUDA files build with `nvcc -O2 -arch=sm_120 <file> -lcublasLt` (the encoder check needs
+no cuBLAS).
 
 ## Known scope notes (also stated in the paper)
 
@@ -108,4 +131,5 @@ tiny_product_vectors.py            golden vectors for those products
 transcripts/s5-correctness.md      measured logs for §5 results whose rig is not published
 transcripts/s6-evaluation.md       measured logs for §6 results whose rig is not published
 transcripts/s7-performance.md      measured logs for §7 results whose rig is not published
+camera-ready/                      scripts, transcripts and FPGA reports added for the camera-ready (see addendum)
 ```

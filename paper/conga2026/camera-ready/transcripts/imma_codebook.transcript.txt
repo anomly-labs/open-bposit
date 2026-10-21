@@ -1,0 +1,14 @@
+SCALE_BITS=6  (bposit8 1.0 -> int8 64)
+total codes            : 256
+NaR / special          : 1  [128]
+exactly representable  : 80
+truncated (sub-2^-6)   : 64
+saturated (|v| too big): 111
+exact value range      : [-2.0, 1.875]
+exact nonzero magnitude: [0.015625, 2.0]
+smallest saturating |v|: 2.0
+largest truncated |v|  : 0.1171875
+
+int8 product bound     : |a*b| <= 16129
+INT32 exact while K <= : 133144
+  shapes in the paper   : K=2048 ok, K=4096 ok, K=14336 ok

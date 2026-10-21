@@ -1,0 +1,23 @@
+model  : Llama-3.2-1B-Instruct  (hidden 2048)
+layer  : model.layers.0.self_attn.q_proj.weight  shape (2048, 2048)
+shape  : M=64 K=2048 N=2048  (131072 outputs, 2048-term contractions)
+operands: identical int8 for every arm, per-row symmetric scales
+
+int64 exact        : |max| = 443485  (int32 limit 2147483647)
+int32              : exact  -- headroom 4842.3x
+fp32 numpy dot     : 0/131072 outputs differ from exact (0.0%), max abs err 0, RMS rel err 0.000e+00
+fp32 sequential    : 0/131072 outputs differ from exact (0.0%), max abs err 0, RMS rel err 0.000e+00
+
+Analytic bound: |a*b| <= 127^2 = 16129, fp32 integers exact to 2^24 = 16777216,
+  so an int8 dot is exact in fp32 for K up to 1040 at full scale.
+Constructed swamping case (large terms first, then +-1 terms):
+  K=  2048: exact 16791296   int32 16791296 (exact)   fp32 seq 16790288 (err -1008)
+  K=  8192: exact 16797440   int32 16797440 (exact)   fp32 seq 16790288 (err -7152)
+  K= 32768: exact 16822016   int32 16822016 (exact)   fp32 seq 16790288 (err -31728)
+
+Reading: the quantization is identical in every arm, so any difference is the
+accumulator alone. On the real layer fp32 accumulation is ALSO exact -- int8
+operands bound the product magnitude so tightly that fp32 cannot be swamped at
+these shapes. The quire's contribution in the W8A8 integer path is therefore
+order independence and reproducibility, NOT accuracy; the accuracy case lives in
+the 16-bit paths of Sections 6.2-6.6, where the operands carry real dynamic range.

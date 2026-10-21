@@ -1,0 +1,15 @@
+bounded non-special codes : 64512
+E2 range                  : [-53, 42]
+M range                   : [32, 2047]  (M < 2^11 = True)
+
+QF=96:
+  product shift range   : [-10, 180]   (need >=0 and +21<=255 i.e. <=234)
+  E2-pair combos under 0: 55 / 8281; over 234: 0 / 8281
+  single shift range    : [43, 138]   (need >=0 and +10<=245)
+  WELL-FORMED, no truncation, no overflow: False
+
+QF=106:
+  product shift range   : [0, 190]   (need >=0 and +21<=255 i.e. <=234)
+  E2-pair combos under 0: 0 / 8281; over 234: 0 / 8281
+  single shift range    : [53, 148]   (need >=0 and +10<=245)
+  WELL-FORMED, no truncation, no overflow: True

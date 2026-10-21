@@ -1,0 +1,14 @@
+device: NVIDIA GeForce RTX 5090 (sm_120)
+
+exhaustive sweep, scale_shift = 12 (the deployed value):
+  all 4,294,967,296 int32 inputs: 0 mismatches -- PASS
+
+every other scale_shift, 0..24, same exhaustive sweep:
+  ss= 0: 0     ss= 1: 0     ss= 2: 0     ss= 3: 0     ss= 4: 0
+  ss= 5: 0     ss= 6: 0     ss= 7: 0     ss= 8: 0     ss= 9: 0
+  ss=10: 0     ss=11: 0     ss=13: 0     ss=14: 0
+  ss=15: 0     ss=16: 0     ss=17: 0     ss=18: 0     ss=19: 0
+  ss=20: 0     ss=21: 0     ss=22: 0     ss=23: 0     ss=24: 0
+
+
+TOTAL over 25 scale shifts x 2^32 inputs (1.074e+11 comparisons): 0 mismatches -- PASS

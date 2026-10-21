@@ -1,0 +1,31 @@
+==============================================================================
+Flash-attention bf16 accumulation bias (arXiv:2510.04212) vs exact quire
+==============================================================================
+
+(0) torch bf16 RNE == independent uint32-bit-twiddle RNE on 100000 floats: True
+
+(1) paper's traced add: bf16(-2.40625 + -2.296875) = -4.6875  (exact -4.703125, error +0.015625)
+
+(2) deterministic chain, n=512 correlated addends (P=1 condition):
+    bf16 = -1024.0  exact = -1204.0  error = +180.000 (14.95% of the true sum); n=128/256/512: +23.00/+46.00/+180.00 (one-direction staircase)
+    quire = -1204.0  error = +0.0  (exact)
+
+(3) Part A — bias z-score over R=2000 rows, L=1024, 8 score ties:
+    ties + same-sign low-rank V (paper conditions):
+      bf16 : z =   +154.1  mean err +30.1957 (+26.33% of |O|, 100% rows same dir)   quire: z = +0.0, max|err| = 0.0, bitwise exact = True
+    ties + same-sign i.i.d. V   (no similarity):
+      bf16 : z =   +161.0  mean err +30.3023 (+26.34% of |O|, 100% rows same dir)   quire: z = +0.0, max|err| = 0.0, bitwise exact = True
+    ties + random-sign V        (control):
+      bf16 : z =     -0.8  mean err -0.0048 (-2.25% of |O|, 50% rows same dir)   quire: z = +0.0, max|err| = 0.0, bitwise exact = True
+    paper's own fix (r_s>1 -> m = 7*r_m) on paper rows:
+      bf16 : z =    +19.5  relative bias +26.3984% of |O|  (unfixed: +26.33%)
+      fp32-acc arm on paper rows: z = +15.3, mean err +3.33e-03  (standard mitigation, not exact)
+
+(4) Part B — cumulative drift over 1000 steps (B=16 rows/step, L=256):
+    paper   : C_1000(bf16) =  +2280.666  (   356.0x the sqrt-envelope std*sqrt(n))   C_1000(quire) = +0.0
+    control : C_1000(bf16) =     -1.583  (     1.8x the sqrt-envelope std*sqrt(n))   C_1000(quire) = +0.0
+      -> biased bf16 drift is LINEAR in steps (far outside any random-walk envelope);
+         quire drift is identically zero. The paper's Fig-5a shape, reproduced.
+
+(5) SDK b-posit16 quantize + exact-quire path (spacetime.dot(exact=True)) vs
+    independent Fraction oracle, 200 rows x L=256: bitwise equal = True (0 mismatches)
