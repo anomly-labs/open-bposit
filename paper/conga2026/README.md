@@ -102,6 +102,7 @@ response to the reviews. Scripts live in `camera-ready/`; measured outputs in
 | §7.4 Table 4 stage split (decode / IMMA GEMM / quire read-out + encode) at five shapes; full pipeline 0.72×–2.85× BF16; codec at 1.85 TB/s vs 1.79 TB/s DRAM | `camera-ready/bench_pipeline_stages.cu` (RTX 5090, cuBLASLt); transcript `pipeline-stages-2026-10-16.txt` | public |
 | §7.4 closed-form b-posit32 encoder = loop form over all 2^32 inputs at each of 25 scale shifts, 1.07·10^11 comparisons, 0 mismatches | `camera-ready/verify_encoder_exhaustive.cu`; transcript `encoder-exhaustive-2026-10-16.txt` | public |
 | §7.3 post-route LUT / FF / CARRY8 / DSP / BRAM / power table and the fp16 7 mW reference | `camera-ready/fpga-mac-cost/` reports + `PROVENANCE.md` | transcript (RTL not published) |
+| §7.2 full-array figures of the 400-PE U200 build: kernel 406,048 LUTs (34.4 %) / 366,229 FF / 22,706 CARRY8 / 803 DSP / 0 BRAM, per-SLR 195,753 / 70,001 / 140,294 LUTs; user partition 10.9 W dynamic (vectorless, confidence Low) | `camera-ready/fpga-array-400pe/` Vivado reports from the retained routed checkpoint + `PROVENANCE.md` | transcript (RTL not published) |
 
 The scripts import `bposit16_reference.py` the same way `verify_paper_math.py` does
 (`BPOSIT16_REFERENCE_DIR`, or a `mosyne-bposit` clone beside this repository). The two

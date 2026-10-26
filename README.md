@@ -1,6 +1,6 @@
 # open-bposit
 
-[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.22651392-blue.svg)](https://doi.org/10.5281/zenodo.22651392)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.22651391-blue.svg)](https://doi.org/10.5281/zenodo.22651391)
 
 **An open, bit-reproducible low-precision number format for AI inference.**
 Run models with **~30–50% less memory** *and* results that are **identical to the
