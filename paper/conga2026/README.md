@@ -6,8 +6,8 @@ This directory backs the paper's Artifact Availability statement. Every quantita
 result in the paper is listed below with one of three provenance classes:
 
 - **public** — the producing kernel/script is in this repository (or in
-  [mosyne-bposit](https://github.com/anomly-labs/mosyne-bposit) for the RTX 5090
-  results) and the number can be regenerated on the named hardware;
+  [mosyne-bposit](https://github.com/anomly-labs/mosyne-bposit/tree/v1.0.0-conga2026), tag
+  `v1.0.0-conga2026`, for the RTX 5090 results) and the number can be regenerated on the named hardware;
 - **transcript** — the producing rig is not published (proprietary FPGA flow, model
   weights we cannot redistribute, or internal evaluation harness) but the measured
   output is reproduced verbatim in `transcripts/`;
@@ -21,7 +21,7 @@ Nothing here is simulated. Every number was measured on the hardware named.
 ```bash
 # arithmetic the paper states in prose (18.3 years, 47,041 tiny×tiny products,
 # eq. (4)–(8), Table 2 ratios, perplexity deltas, FPGA/SFPU ratios, ...)
-git clone https://github.com/anomly-labs/mosyne-bposit ../mosyne-bposit   # for bposit16_reference.py
+git clone --branch v1.0.0-conga2026 https://github.com/anomly-labs/mosyne-bposit ../mosyne-bposit   # for bposit16_reference.py
 python3 paper/conga2026/verify_paper_math.py         # -> verify_paper_math.transcript.txt
 
 # the kernel truncates sub-2^-96 products toward zero exactly like the oracle
