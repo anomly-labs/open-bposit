@@ -1,10 +1,10 @@
 top/constraint : bposit16_mac @ 2.927 ns
-WNS            : 0.259 ns
-crit path      : 2.668 ns
-Fmax           : 374.8 MHz
-CLB LUTs       : 5840
+WNS            : 0.574 ns
+crit path      : 2.353 ns
+Fmax           : 425.0 MHz
+CLB LUTs       : 4184
 FF             : 294
-CARRY8         : 184
+CARRY8         : 216
 DSP            : 1
 BRAM           : 0
-dynamic power  : 0.239 W
+dynamic power  : 0.178 W

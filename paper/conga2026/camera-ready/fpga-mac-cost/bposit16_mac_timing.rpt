@@ -1,12 +1,12 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
-------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
 | Tool Version      : Vivado v.2022.2 (lin64) Build 3671981 Fri Oct 14 04:59:54 MDT 2022
-| Date              : Sat Oct 17 21:25:34 2026
+| Date              : Sat Oct 17 21:43:59 2026
 | Design            : bposit16_mac
 | Device            : xcu200-fsgd2104
 | Speed File        : -2  PRODUCTION 1.28 03-30-2022
 | Temperature Grade : E
-------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
 
 Timing Summary Report
 
@@ -135,7 +135,7 @@ Table of Contents
 
     WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
     -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
-      0.259        0.000                      0                  294        0.059        0.000                      0                  294        1.188        0.000                       0                   294  
+      0.574        0.000                      0                  294        0.066        0.000                      0                  294        1.188        0.000                       0                   294  
 
 
 All user specified timing constraints are met.
@@ -158,7 +158,7 @@ clk    {0.000 1.463}        2.927           341.647
 
 Clock             WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
 -----             -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
-clk                 0.259        0.000                      0                  294        0.059        0.000                      0                  294        1.188        0.000                       0                   294  
+clk                 0.574        0.000                      0                  294        0.066        0.000                      0                  294        1.188        0.000                       0                   294  
 
 
 ------------------------------------------------------------------------------------------------
@@ -189,24 +189,24 @@ Path Group    From Clock    To Clock          WNS(ns)      TNS(ns)  TNS Failing 
 From Clock:  clk
   To Clock:  clk
 
-Setup :            0  Failing Endpoints,  Worst Slack        0.259ns,  Total Violation        0.000ns
-Hold  :            0  Failing Endpoints,  Worst Slack        0.059ns,  Total Violation        0.000ns
+Setup :            0  Failing Endpoints,  Worst Slack        0.574ns,  Total Violation        0.000ns
+Hold  :            0  Failing Endpoints,  Worst Slack        0.066ns,  Total Violation        0.000ns
 PW    :            0  Failing Endpoints,  Worst Slack        1.188ns,  Total Violation        0.000ns
 ---------------------------------------------------------------------------------------------------
 
 
 Max Delay Paths
 --------------------------------------------------------------------------------------
-Slack (MET) :             0.259ns  (required time - arrival time)
-  Source:                 g_ripple.u_quire/quire_reg[0]/C
+Slack (MET) :             0.574ns  (required time - arrival time)
+  Source:                 g_ripple.u_quire/quire_reg[16]/C
                             (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.464ns period=2.927ns})
-  Destination:            g_ripple.u_quire/quire_reg[240]/D
+  Destination:            g_ripple.u_quire/quire_reg[255]_rep__4/D
                             (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.464ns period=2.927ns})
   Path Group:             clk
   Path Type:              Setup (Max at Slow Process Corner)
   Requirement:            2.927ns  (clk rise@2.927ns - clk rise@0.000ns)
-  Data Path Delay:        2.648ns  (logic 0.980ns (37.008%)  route 1.668ns (62.992%))
-  Logic Levels:           10  (LUT2=1 LUT3=2 LUT4=2 LUT6=5)
+  Data Path Delay:        2.332ns  (logic 0.944ns (40.473%)  route 1.388ns (59.527%))
+  Logic Levels:           31  (CARRY8=30 LUT6=1)
   Clock Path Skew:        -0.010ns (DCD - SCD + CPR)
     Destination Clock Delay (DCD):    0.020ns = ( 2.947 - 2.927 ) 
     Source Clock Delay      (SCD):    0.030ns
@@ -222,57 +222,120 @@ Slack (MET) :             0.259ns  (required time - arrival time)
                          (clock clk rise edge)        0.000     0.000 r  
                                                       0.000     0.000 r  clk (IN)
                          net (fo=293, unset)          0.030     0.030    g_ripple.u_quire/clk
-    SLICE_X142Y614       FDCE                                         r  g_ripple.u_quire/quire_reg[0]/C
+    SLICE_X45Y672        FDCE                                         r  g_ripple.u_quire/quire_reg[16]/C
   -------------------------------------------------------------------    -------------------
-    SLICE_X142Y614       FDCE (Prop_FFF_SLICEM_C_Q)
-                                                      0.076     0.106 f  g_ripple.u_quire/quire_reg[0]/Q
-                         net (fo=8, routed)           0.109     0.215    g_ripple.u_quire/u_add/Q[0]
-    SLICE_X141Y614       LUT3 (Prop_F6LUT_SLICEM_I0_O)
-                                                      0.088     0.303 f  g_ripple.u_quire/u_add/i_/quire[1]_i_3/O
-                         net (fo=4, routed)           0.089     0.392    g_ripple.u_quire/u_add/quire_reg[0]
-    SLICE_X141Y615       LUT3 (Prop_F6LUT_SLICEM_I0_O)
-                                                      0.037     0.429 f  g_ripple.u_quire/u_add/i_/quire[2]_i_2/O
-                         net (fo=4, routed)           0.059     0.488    g_ripple.u_quire/u_add_n_399
-    SLICE_X141Y615       LUT4 (Prop_H6LUT_SLICEM_I2_O)
-                                                      0.125     0.613 f  g_ripple.u_quire/quire[4]_i_2/O
-                         net (fo=3, routed)           0.200     0.814    g_ripple.u_quire/quire[4]_i_2_n_0
-    SLICE_X140Y616       LUT4 (Prop_F6LUT_SLICEL_I2_O)
-                                                      0.097     0.911 f  g_ripple.u_quire/quire[8]_i_3/O
-                         net (fo=3, routed)           0.134     1.045    g_ripple.u_quire/quire[8]_i_3_n_0
-    SLICE_X140Y619       LUT6 (Prop_H6LUT_SLICEL_I5_O)
-                                                      0.090     1.135 r  g_ripple.u_quire/quire[16]_i_3/O
-                         net (fo=3, routed)           0.191     1.326    g_ripple.u_quire/quire[16]_i_3_n_0
-    SLICE_X138Y619       LUT6 (Prop_H6LUT_SLICEM_I2_O)
-                                                      0.053     1.379 f  g_ripple.u_quire/quire[48]_i_3/O
-                         net (fo=3, routed)           0.225     1.605    g_ripple.u_quire/quire[48]_i_3_n_0
-    SLICE_X137Y624       LUT6 (Prop_F6LUT_SLICEM_I2_O)
-                                                      0.098     1.703 r  g_ripple.u_quire/quire[112]_i_2/O
-                         net (fo=2, routed)           0.267     1.970    g_ripple.u_quire/quire[112]_i_2_n_0
-    SLICE_X137Y634       LUT6 (Prop_H6LUT_SLICEM_I4_O)
-                                                      0.053     2.023 r  g_ripple.u_quire/quire[176]_i_3/O
-                         net (fo=2, routed)           0.144     2.167    g_ripple.u_quire/u_add/quire_reg[240]_3
-    SLICE_X137Y634       LUT6 (Prop_F6LUT_SLICEM_I3_O)
-                                                      0.098     2.265 r  g_ripple.u_quire/u_add/i_/quire[240]_i_2/O
-                         net (fo=1, routed)           0.230     2.495    g_ripple.u_quire/q_next[240]
-    SLICE_X140Y634       LUT2 (Prop_B5LUT_SLICEL_I0_O)
-                                                      0.165     2.660 r  g_ripple.u_quire/quire[240]_i_1/O
-                         net (fo=1, routed)           0.018     2.678    g_ripple.u_quire/p_1_in__0[240]
-    SLICE_X140Y634       FDCE                                         r  g_ripple.u_quire/quire_reg[240]/D
+    SLICE_X45Y672        FDCE (Prop_AFF_SLICEM_C_Q)
+                                                      0.077     0.107 r  g_ripple.u_quire/quire_reg[16]/Q
+                         net (fo=8, routed)           0.193     0.300    u_prod/quire[16]
+    SLICE_X45Y672        LUT6 (Prop_A6LUT_SLICEM_I5_O)
+                                                      0.125     0.425 r  u_prod/quire[23]_i_17/O
+                         net (fo=1, routed)           0.013     0.438    u_prod/quire[23]_i_17_n_0
+    SLICE_X45Y672        CARRY8 (Prop_CARRY8_SLICEM_S[0]_CO[7])
+                                                      0.192     0.630 r  u_prod/quire_reg[23]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     0.656    u_prod/quire_reg[23]_i_1_n_0
+    SLICE_X45Y673        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     0.671 r  u_prod/quire_reg[31]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     0.697    u_prod/quire_reg[31]_i_1_n_0
+    SLICE_X45Y674        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     0.712 r  u_prod/quire_reg[39]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     0.738    u_prod/quire_reg[39]_i_1_n_0
+    SLICE_X45Y675        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     0.753 r  u_prod/quire_reg[47]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     0.779    u_prod/quire_reg[47]_i_1_n_0
+    SLICE_X45Y676        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     0.794 r  u_prod/quire_reg[55]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     0.820    u_prod/quire_reg[55]_i_1_n_0
+    SLICE_X45Y677        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     0.835 r  u_prod/quire_reg[63]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     0.861    u_prod/quire_reg[63]_i_1_n_0
+    SLICE_X45Y678        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     0.876 r  u_prod/quire_reg[71]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     0.902    u_prod/quire_reg[71]_i_1_n_0
+    SLICE_X45Y679        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     0.917 r  u_prod/quire_reg[79]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     0.943    u_prod/quire_reg[79]_i_1_n_0
+    SLICE_X45Y680        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     0.958 r  u_prod/quire_reg[87]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     0.984    u_prod/quire_reg[87]_i_1_n_0
+    SLICE_X45Y681        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     0.999 r  u_prod/quire_reg[95]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.025    u_prod/quire_reg[95]_i_1_n_0
+    SLICE_X45Y682        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.040 r  u_prod/quire_reg[103]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.066    u_prod/quire_reg[103]_i_1_n_0
+    SLICE_X45Y683        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.081 r  u_prod/quire_reg[111]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.107    u_prod/quire_reg[111]_i_1_n_0
+    SLICE_X45Y684        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.122 r  u_prod/quire_reg[119]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.148    u_prod/quire_reg[119]_i_1_n_0
+    SLICE_X45Y685        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.163 r  u_prod/quire_reg[127]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.189    u_prod/quire_reg[127]_i_1_n_0
+    SLICE_X45Y686        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.204 r  u_prod/quire_reg[135]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.230    u_prod/quire_reg[135]_i_1_n_0
+    SLICE_X45Y687        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.245 r  u_prod/quire_reg[143]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.271    u_prod/quire_reg[143]_i_1_n_0
+    SLICE_X45Y688        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.286 r  u_prod/quire_reg[151]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.312    u_prod/quire_reg[151]_i_1_n_0
+    SLICE_X45Y689        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.327 r  u_prod/quire_reg[159]_i_1/CO[7]
+                         net (fo=1, routed)           0.052     1.379    u_prod/quire_reg[159]_i_1_n_0
+    SLICE_X45Y690        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.394 r  u_prod/quire_reg[167]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.420    u_prod/quire_reg[167]_i_1_n_0
+    SLICE_X45Y691        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.435 r  u_prod/quire_reg[175]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.461    u_prod/quire_reg[175]_i_1_n_0
+    SLICE_X45Y692        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.476 r  u_prod/quire_reg[183]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.502    u_prod/quire_reg[183]_i_1_n_0
+    SLICE_X45Y693        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.517 r  u_prod/quire_reg[191]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.543    u_prod/quire_reg[191]_i_1_n_0
+    SLICE_X45Y694        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.558 r  u_prod/quire_reg[199]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.584    u_prod/quire_reg[199]_i_1_n_0
+    SLICE_X45Y695        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.599 r  u_prod/quire_reg[207]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.625    u_prod/quire_reg[207]_i_1_n_0
+    SLICE_X45Y696        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.640 r  u_prod/quire_reg[215]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.666    u_prod/quire_reg[215]_i_1_n_0
+    SLICE_X45Y697        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.681 r  u_prod/quire_reg[223]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.707    u_prod/quire_reg[223]_i_1_n_0
+    SLICE_X45Y698        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.722 r  u_prod/quire_reg[231]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.748    u_prod/quire_reg[231]_i_1_n_0
+    SLICE_X45Y699        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.763 r  u_prod/quire_reg[239]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.789    u_prod/quire_reg[239]_i_1_n_0
+    SLICE_X45Y700        CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     1.804 r  u_prod/quire_reg[247]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     1.830    u_prod/quire_reg[247]_i_1_n_0
+    SLICE_X45Y701        CARRY8 (Prop_CARRY8_SLICEM_CI_O[7])
+                                                      0.130     1.960 r  u_prod/quire_reg[255]_i_2/O[7]
+                         net (fo=7, routed)           0.402     2.362    g_ripple.u_quire/quire_reg[255]_1[7]
+    SLICE_X44Y695        FDCE                                         r  g_ripple.u_quire/quire_reg[255]_rep__4/D
   -------------------------------------------------------------------    -------------------
 
                          (clock clk rise edge)        2.927     2.927 r  
                                                       0.000     2.927 r  clk (IN)
                          net (fo=293, unset)          0.020     2.947    g_ripple.u_quire/clk
-    SLICE_X140Y634       FDCE                                         r  g_ripple.u_quire/quire_reg[240]/C
+    SLICE_X44Y695        FDCE                                         r  g_ripple.u_quire/quire_reg[255]_rep__4/C
                          clock pessimism              0.000     2.947    
                          clock uncertainty           -0.035     2.912    
-    SLICE_X140Y634       FDCE (Setup_BFF2_SLICEL_C_D)
-                                                      0.025     2.937    g_ripple.u_quire/quire_reg[240]
+    SLICE_X44Y695        FDCE (Setup_EFF_SLICEL_C_D)
+                                                      0.025     2.937    g_ripple.u_quire/quire_reg[255]_rep__4
   -------------------------------------------------------------------
                          required time                          2.937    
-                         arrival time                          -2.678    
+                         arrival time                          -2.362    
   -------------------------------------------------------------------
-                         slack                                  0.259    
+                         slack                                  0.574    
 
 
 
@@ -280,16 +343,16 @@ Slack (MET) :             0.259ns  (required time - arrival time)
 
 Min Delay Paths
 --------------------------------------------------------------------------------------
-Slack (MET) :             0.059ns  (arrival time - required time)
-  Source:                 g_ripple.u_quire/quire_reg[84]/C
+Slack (MET) :             0.066ns  (arrival time - required time)
+  Source:                 g_ripple.u_quire/quire_reg[105]/C
                             (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.464ns period=2.927ns})
-  Destination:            g_ripple.u_quire/quire_reg[84]/D
+  Destination:            g_ripple.u_quire/quire_reg[105]/D
                             (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.464ns period=2.927ns})
   Path Group:             clk
   Path Type:              Hold (Min at Fast Process Corner)
   Requirement:            0.000ns  (clk rise@0.000ns - clk rise@0.000ns)
-  Data Path Delay:        0.111ns  (logic 0.062ns (55.748%)  route 0.049ns (44.252%))
-  Logic Levels:           1  (LUT6=1)
+  Data Path Delay:        0.118ns  (logic 0.070ns (59.482%)  route 0.048ns (40.518%))
+  Logic Levels:           2  (CARRY8=1 LUT6=1)
   Clock Path Skew:        0.006ns (DCD - SCD - CPR)
     Destination Clock Delay (DCD):    0.019ns
     Source Clock Delay      (SCD):    0.013ns
@@ -300,29 +363,32 @@ Slack (MET) :             0.059ns  (arrival time - required time)
                          (clock clk rise edge)        0.000     0.000 r  
                                                       0.000     0.000 r  clk (IN)
                          net (fo=293, unset)          0.013     0.013    g_ripple.u_quire/clk
-    SLICE_X140Y625       FDCE                                         r  g_ripple.u_quire/quire_reg[84]/C
+    SLICE_X45Y683        FDCE                                         r  g_ripple.u_quire/quire_reg[105]/C
   -------------------------------------------------------------------    -------------------
-    SLICE_X140Y625       FDCE (Prop_HFF_SLICEL_C_Q)
-                                                      0.039     0.052 r  g_ripple.u_quire/quire_reg[84]/Q
-                         net (fo=12, routed)          0.032     0.084    u_prod/Q[26]
-    SLICE_X140Y625       LUT6 (Prop_H6LUT_SLICEL_I0_O)
-                                                      0.023     0.107 r  u_prod/quire[84]_i_1/O
-                         net (fo=1, routed)           0.017     0.124    g_ripple.u_quire/D[2]
-    SLICE_X140Y625       FDCE                                         r  g_ripple.u_quire/quire_reg[84]/D
+    SLICE_X45Y683        FDCE (Prop_BFF_SLICEM_C_Q)
+                                                      0.038     0.051 r  g_ripple.u_quire/quire_reg[105]/Q
+                         net (fo=9, routed)           0.029     0.080    u_prod/quire[105]
+    SLICE_X45Y683        LUT6 (Prop_B6LUT_SLICEM_I5_O)
+                                                      0.014     0.094 r  u_prod/quire[111]_i_16/O
+                         net (fo=1, routed)           0.012     0.106    u_prod/quire[111]_i_16_n_0
+    SLICE_X45Y683        CARRY8 (Prop_CARRY8_SLICEM_S[1]_O[1])
+                                                      0.018     0.124 r  u_prod/quire_reg[111]_i_1/O[1]
+                         net (fo=1, routed)           0.007     0.131    g_ripple.u_quire/quire_reg[111]_1[1]
+    SLICE_X45Y683        FDCE                                         r  g_ripple.u_quire/quire_reg[105]/D
   -------------------------------------------------------------------    -------------------
 
                          (clock clk rise edge)        0.000     0.000 r  
                                                       0.000     0.000 r  clk (IN)
                          net (fo=293, unset)          0.019     0.019    g_ripple.u_quire/clk
-    SLICE_X140Y625       FDCE                                         r  g_ripple.u_quire/quire_reg[84]/C
+    SLICE_X45Y683        FDCE                                         r  g_ripple.u_quire/quire_reg[105]/C
                          clock pessimism              0.000     0.019    
-    SLICE_X140Y625       FDCE (Hold_HFF_SLICEL_C_D)
-                                                      0.046     0.065    g_ripple.u_quire/quire_reg[84]
+    SLICE_X45Y683        FDCE (Hold_BFF_SLICEM_C_D)
+                                                      0.046     0.065    g_ripple.u_quire/quire_reg[105]
   -------------------------------------------------------------------
                          required time                         -0.065    
-                         arrival time                           0.124    
+                         arrival time                           0.131    
   -------------------------------------------------------------------
-                         slack                                  0.059    
+                         slack                                  0.066    
 
 
 
@@ -335,10 +401,10 @@ Waveform(ns):       { 0.000 1.464 }
 Period(ns):         2.927
 Sources:            { clk }
 
-Check Type        Corner  Lib Pin  Reference Pin  Required(ns)  Actual(ns)  Slack(ns)  Location        Pin
-Min Period        n/a     FDCE/C   n/a            0.550         2.927       2.377      SLICE_X121Y611  g_ripple.u_quire/op_count_reg[0]/C
-Low Pulse Width   Slow    FDCE/C   n/a            0.275         1.464       1.189      SLICE_X121Y611  g_ripple.u_quire/op_count_reg[0]/C
-High Pulse Width  Slow    FDCE/C   n/a            0.275         1.463       1.188      SLICE_X121Y611  g_ripple.u_quire/op_count_reg[0]/C
+Check Type        Corner  Lib Pin  Reference Pin  Required(ns)  Actual(ns)  Slack(ns)  Location       Pin
+Min Period        n/a     FDCE/C   n/a            0.550         2.927       2.377      SLICE_X36Y690  g_ripple.u_quire/op_count_reg[0]/C
+Low Pulse Width   Slow    FDCE/C   n/a            0.275         1.464       1.189      SLICE_X36Y690  g_ripple.u_quire/op_count_reg[0]/C
+High Pulse Width  Slow    FDCE/C   n/a            0.275         1.463       1.188      SLICE_X36Y690  g_ripple.u_quire/op_count_reg[0]/C
 
 
 
